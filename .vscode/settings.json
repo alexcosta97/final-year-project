@@ -34,8 +34,6 @@
     "latex-workshop.latex.autoBuild.cleanAndRetry.enabled": false,
     "latex-workshop.latex.autoBuild.onSave.enabled": true,
     "latex-workshop.latex.autoBuild.onTexChange.enabled": false,
-    "spellright.groupDictionaries": false,
-    "spellright.language": "en-GB",
     "files.exclude": {
       "**/out": true,
       "report/pyg": true

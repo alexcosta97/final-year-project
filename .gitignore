@@ -59,3 +59,8 @@ typings/
 
 # next.js build output
 .next
+
+# LaTex build files and directories
+report/out
+report/pyg
+*.pdf

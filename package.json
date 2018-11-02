@@ -1,0 +1,13 @@
+{
+    "author": {
+        "name": "Alex Paulo da Costa",
+        "email": "alex.callum.c@gmail.com"
+    },
+    "name": "unify",
+    "description": "Ordering for Businesses Made Simple",
+    "version": "0.0.1",
+    "dependencies": {
+        "express": "latest",
+        "@angular/cli": "latest"
+    }
+}

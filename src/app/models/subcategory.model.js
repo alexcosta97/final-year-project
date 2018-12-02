@@ -7,10 +7,6 @@ const SubcategorySchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Category'
     },
-    company: {
-        type: Schema.Types.ObjectId,
-        ref: 'Company'
-    },
     products: {
         type: [Schema.Types.ObjectId],
         ref: 'Product'

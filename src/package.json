@@ -7,7 +7,8 @@
     "description": "Ordering for Businesses Made Simple",
     "version": "0.0.1",
     "dependencies": {
-        "express": "latest",
-        "@angular/cli": "latest"
+        "express": "~4.16.4",
+        "mongoose": "~5.3.14",
+        "express-session": "1.15.6"
     }
 }

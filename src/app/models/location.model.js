@@ -1,6 +1,15 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const AddressSchema = new Schema({
+    houseNumber: String,
+    street: String,
+    town: String,
+    postCode: String,
+    county: String,
+    country: String
+});
+
 const LocationSchema = new Schema({
     name:{
         type: String,
@@ -20,10 +29,7 @@ const LocationSchema = new Schema({
         type: String,
         match: [/.+\@.+\..+/, "Please fill a valid e-mail address"]
     },
-    address: {
-        type: Schema.Types.ObjectId,
-        ref: 'Address'
-    }
+    address: AddressSchema
 });
 
 mongoose.model('Location', LocationSchema);

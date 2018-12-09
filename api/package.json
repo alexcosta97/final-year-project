@@ -1,13 +1,17 @@
 {
   "name": "unify_api",
   "version": "1.0.0",
-  "description": "",
+  "description": "API that exposes an online ordering system for catering businesses.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["API", "Ordering"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexcosta97/final-year-project.git"
+  },
+  "author": "Alex Costa",
   "license": "MIT",
   "dependencies": {
     "express": "^4.16.4",

@@ -1,13 +1,32 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Joi = require('joi');
 
+//creating embedded document containing information about product ordered and quantity ordered
 const ProductOrderedSchema = new Schema({
+    // creating a custom schema for product to reduce info stored in database
     product:{
-        type: Schema.Types.ObjectId,
-        ref: 'Product'
+        type: new Schema({
+            name:{
+                type: String,
+                required: true
+            },
+            price: {
+                type: Number,
+                required: true
+            },
+            supplierReference: {
+                type: String,
+                required: true
+            }
+        }),
+        required: true
     },
-    quantity: Number
-})
+    quantity: {
+        type: Number,
+        required: true
+    }
+});
 
 const OrderSchema = new Schema({
     location:{

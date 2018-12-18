@@ -4,9 +4,13 @@
   "description": "API that exposes an online ordering system for catering businesses.",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["API", "Ordering"],
+  "keywords": [
+    "API",
+    "Ordering"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/alexcosta97/final-year-project.git"
@@ -17,6 +21,8 @@
     "express": "^4.16.4",
     "helmet": "^3.15.0",
     "joi": "^14.3.0",
+    "joi-objectid": "^2.0.0",
+    "mongoose": "^5.3.15",
     "morgan": "^1.9.1"
   }
 }

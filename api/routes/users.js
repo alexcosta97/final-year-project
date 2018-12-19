@@ -48,4 +48,6 @@ router.post('/', async (req, res) => {
     };
 
     res.send(resUser);
-})
+});
+
+module.exports = router;

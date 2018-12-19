@@ -12,8 +12,8 @@ const orders = require('./routes/orders');
 const products = require('./routes/products');
 const subcategories = require('./routes/subcategories');
 const suppliers = require('./routes/suppliers');
-const templates = require('./routes/templates');
-const users = require('./routes/users'); */
+const templates = require('./routes/templates');*/
+const users = require('./routes/users');
 
 //Initialize express app
 const app = express();
@@ -43,9 +43,8 @@ app.use('/api/orders', orders);
 app.use('/api/products', products);
 app.use('/api/subcategories', subcategories);
 app.use('/api/suppliers', suppliers);
-app.use('/api/templates', templates);
+app.use('/api/templates', templates);*/
 app.use('/api/users', users);
- */
 
 //PORT
 const port = process.env.PORT || 3000;

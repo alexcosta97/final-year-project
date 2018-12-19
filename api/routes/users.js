@@ -3,6 +3,8 @@ const {User, validate} = require('../models/user.model');
 const {Company} = require('../models/company.model');
 const {Location} = require('../models/location.model');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const config = require('config');
 
 router.post('/', async (req, res) => {
     const {error} = validate(req.body);
@@ -46,8 +48,9 @@ router.post('/', async (req, res) => {
         name: user.name,
         email: user.email
     };
+    const token = jwt.sign({_id: user._id}, config.get('jwtPrivateKey'));
 
-    res.send(resUser);
+    res.header('x-auth-token', token).send(resUser);
 });
 
 module.exports = router;

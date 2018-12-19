@@ -3,6 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
+const config = require('config');
 
 //Require api routers
 const categories = require('./routes/categories');
@@ -22,6 +23,11 @@ const app = express();
 if(app.get('env') === 'development'){
     app.use(morgan('tiny'));
     console.log('Morgan enabled.');
+}
+
+if(!config.get('jwtPrivateKey')){
+    console.error('FATAL ERROR: jwtPrivateKey is not defined');
+    process.exit(1);
 }
 
 //Configuring Mongoose

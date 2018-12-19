@@ -18,6 +18,7 @@
   "author": "Alex Costa",
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^3.0.2",
     "express": "^4.16.4",
     "helmet": "^3.15.0",
     "joi": "^14.3.0",

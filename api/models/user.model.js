@@ -27,12 +27,7 @@ const UserSchema = new Schema({
         minlength: 10,
         maxlength: 255
     },
-    hashedPassword: {
-        type: String,
-        required: true,
-        maxlength: 2048
-    },
-    salt: {
+    password: {
         type: String,
         required: true,
         maxlength: 2048
@@ -63,23 +58,6 @@ const UserSchema = new Schema({
         required: true
     }
 });
-
-UserSchema.pre('save', function(next){
-    if(this.hashedPassword){
-        this.salt = Buffer.from(crypto.randomBytes(16).toString('base64'));
-        this.hashedPassword = this.hashPassword(this.hashedPassword);
-    }
-
-    next();
-});
-
-UserSchema.methods.hashPassword = function(password){
-    return crypto.pbkdf2Sync(password, this.salt, 10000, 64).toString('base64');
-};
-
-UserSchema.methods.authenticate = function(password){
-    return this.hashedPassword === this.hashPassword(password);
-};
 
 const User = mongoose.model('User', UserSchema);
 

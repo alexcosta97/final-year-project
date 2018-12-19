@@ -1,17 +1,42 @@
 const mongoose = require('mongoose');
+const Joi = require('joi');
 const Schema = mongoose.Schema;
 
 const CompanySchema = new Schema({
-    name: String,
+    name: {
+        type: String,
+        required: true,
+        minlength: 5,
+        maxlength: 255
+    },
     email: {
         type: String,
-        required: 'Please enter an email',
-        match: [/.+\@.+\..+/, "Please fill a valid e-mail address"]
+        minlength: 10,      //setting min length to 10 to make sure the email is valid
+        maxlength: 255,
+        required: true,
+        trim: true
     },
-    phoneNumber:{
+    phone:{
         type: String,
-        required: 'Please enter a phone number'
+        minlength: 5,
+        maxlength: 50,
+        required: true
     }
 });
 
-mongoose.model('Company', CompanySchema);
+const Company = mongoose.model('Company', CompanySchema);
+
+//creating Joi validation for client input
+const validateCompany = (company) => {
+    //creating a validation schema
+    const schema = {
+        name: Joi.string().min(5).max(255).required(),
+        email: Joi.string().min(10).max(255).required().email(),
+        phone: Joi.string().min(5).max(50).required()
+    }
+
+    return Joi.validate(company, schema);
+}
+
+exports.Company = Company;
+exports.validate = validateCompany;

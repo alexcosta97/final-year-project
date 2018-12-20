@@ -12,6 +12,10 @@ const productSchema = new Schema({
     supplierName: {
         type: String,
         required: true
+    },
+    supplierReference: {
+        type: String,
+        required: true
     }
 });
 

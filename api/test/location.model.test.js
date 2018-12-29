@@ -18,7 +18,7 @@ describe('Testing the Locations Model', () => {
                 name: 'TestLoc',
                 phone: '12345',
                 fax: '12345',
-                companyId: company._id,
+                companyId: company._id.toString(),
                 email: 'testco@test.com',
                 houseNumber: '1',
                 street: 'Street',

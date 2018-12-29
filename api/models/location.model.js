@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Joi = require('joi');
+const Joi = require('../config/joi');
 
 //creating embedded address schema
 const addressSchema = new Schema({

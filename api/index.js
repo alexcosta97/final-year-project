@@ -35,11 +35,6 @@ if(!config.get('jwtPrivateKey')){
 
 //Configuring Mongoose
 mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});
-
-//Configuring Joi validation to include ObjectID validation
-const Joi = require('joi');
-Joi.objectId = require('joi-objectid')(Joi);
-
 //parse application/json and look for raw text  
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -61,5 +56,3 @@ app.use('/api/templates', templates);*/
 //PORT
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
-
-module.exports = app; //For testing

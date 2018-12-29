@@ -1,6 +1,6 @@
 //Require third party modules and classes
 const mongoose = require('mongoose');
-const Joi = require('joi');
+const Joi = require('../config/joi');
 const Schema = mongoose.Schema;
 
 //Creating Mongoose schema and model
@@ -29,8 +29,8 @@ const Category = mongoose.model('Category', CategorySchema);
 const validateCategory = (category) =>{
     //creating a joi-unique validation schema
     const schema = {
-        name: Joi.string().min(5).max(50).required(),
-        companyId: Joi.objectId().required()
+        companyId: Joi.objectId().required(),
+        name: Joi.string().min(5).max(50).required()
     };
 
     return Joi.validate(category, schema);

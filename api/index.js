@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
 const config = require('config');
+const bodyParser = require('body-parser');
 
 //Require api routers
 const categories = require('./routes/categories');
@@ -39,8 +40,11 @@ mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, us
 const Joi = require('joi');
 Joi.objectId = require('joi-objectid')(Joi);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+//parse application/json and look for raw text  
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.text());
+app.use(bodyParser.json({ type: 'application/json'}));  
 app.use(helmet());
 
 //Hooking up api routers
@@ -57,3 +61,5 @@ app.use('/api/users', users);
 //PORT
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
+
+module.exports = app; //For testing

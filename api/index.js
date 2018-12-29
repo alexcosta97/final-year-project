@@ -20,9 +20,11 @@ const users = require('./routes/users');
 const app = express();
 
 //Configuration
-if(app.get('env') === 'development'){
+//Disabling morgan when testing the application
+if(config.util.getEnv('NODE_ENV') !== 'test') {
+    //use morgan to log at command line
     app.use(morgan('tiny'));
-    console.log('Morgan enabled.');
+    console.log('Morgan enabled')
 }
 
 if(!config.get('jwtPrivateKey')){

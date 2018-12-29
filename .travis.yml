@@ -9,6 +9,7 @@ matrix:
 services:
   - mongodb
 install:
+  - npm install -g mocha
   - npm install --prefix api
 before_script:
   - sleep 15

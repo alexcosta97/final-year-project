@@ -59,57 +59,51 @@ describe('Company Model Tests', () =>{
     });
 
     describe('Testing the save method', () => {
-        it('should save an object with the required information', (done) => {
+        it('should save an object with the required information', () => {
             companyDB.save((err, company) => {
                 expect(err).to.be.null;
                 expect(company).to.not.be.null;
-                done();
             });
         });
 
-        it(`should return an error object and no company when an info is wrong`, (done) => {
+        it(`should return an error object and no company when an info is wrong`, () => {
             companyDB.phone = '123';
 
             companyDB.save((err, company) => {
                 expect(err).to.exist;
                 expect(company).to.not.exist;
-                done();
             });
         });
     });
 
     describe('Testing the find method', () => {
-        it(`should return the result of a query`,(done) => {
+        it(`should return the result of a query`,() => {
             Company.findOne({_id: companyDB._id}, (err,company) => {
                 expect(company).to.exist;
-                done();
             });
         });
     });
 
-    describe('Testing the update method', (done) => {
+    describe('Testing the update method', () => {
         it(`should update an existing object when given the right information`, (done) => {
             companyDB.updateOne({name: 'TestCompany'}, (err) => {
                 expect(err).to.not.exist;
-                done();
             });
         });
     });
 
     describe('Testing the remove method', () => {
-        it(`should return an error when sending the wrong document`, (done) => {
+        it(`should return an error when sending the wrong document`, () => {
             Company.deleteOne({_id: 'Hello'}, (err, company) => {
                 expect(err).to.exist;
-                done();
             });
         });
 
-        it(`should remove the document from the database`, (done) => {
+        it(`should remove the document from the database`, () => {
             companyDB.remove((err, company) => {
                 expect(err).to.not.exist;
                 Company.findById(company._id, (err, comp) => {
                     expect(comp).to.be.null;
-                    done();
                 });
             });
         });

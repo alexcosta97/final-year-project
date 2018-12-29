@@ -1,7 +1,9 @@
-const app = require('../index');
 const {Category, validate} = require('../models/category.model');
 const {Company} = require('../models/company.model');
 const expect = require('chai').expect;
+const mongoose = require('mongoose');
+const config = require('config');
+mongoose.Promise = global.Promise;
 
 let category;
 let input;
@@ -9,23 +11,29 @@ let company;
 
 describe('Testing the Category model', () =>{
     before((done) => {
-        company = new Company({
-            name: 'TestCo',
-            email: 'testco@test.com',
-            phone: '12345'
-        });
-        company.save((err, company) => {
-            input = {
-                name: 'Category',
-                companyId: company._id.toString()
-            };
-            category = new Category({
-                name: input.name,
-                company: {
-                    name: company.name
-                }
+        mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});
+        mongoose.connection.once('open', () => {
+            //Resets the databse before creating the objects
+            mongoose.connection.dropDatabase(() => {
+                company = new Company({
+                    name: 'TestCo',
+                    email: 'testco@test.com',
+                    phone: '12345'
+                });
+                company.save((err, company) => {
+                    input = {
+                        name: 'Category',
+                        companyId: company._id.toString()
+                    };
+                    category = new Category({
+                        name: input.name,
+                        company: {
+                            name: company.name
+                        }
+                    });
+                });
+                done();
             });
-            done();
         });
     });
 
@@ -51,5 +59,39 @@ describe('Testing the Category model', () =>{
             let result = validate(input);
             expect(result.error).to.not.be.null;
         });
+    });
+
+    describe('save()', () => {
+        it('should save a category', () => {
+            category.save((err, category) => {
+                expect(err).to.be.null;
+                expect(category).to.not.be.null;
+            });
+        });
+    });
+
+    describe('findOne()', () => {
+        it('should throw an error if given the wrong information', (done) => {
+            let fakeID = 'Hello';
+            Category.findOne({_id: fakeID}, (err, category) => {
+                expect(err).to.exist;
+                expect(err).to.not.be.null;
+                expect(category).to.not.exist;
+                done();
+            });
+        });
+
+        it('should send back a category if given the right information', (done) => {
+            Category.findOne({_id: category._id.toString()}, (err, category) => {
+                expect(err).to.not.exist;
+                expect(category).to.not.be.null;
+                done();
+            });
+        });
+    });
+
+    after((done) => {
+        mongoose.connection.close();
+        done();
     });
 });

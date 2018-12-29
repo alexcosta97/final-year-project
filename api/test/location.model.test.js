@@ -1,7 +1,9 @@
-const app = require('../index');
 const {Location, validate} = require('../models/location.model');
 const {Company} = require('../models/company.model');
 const expect = require('chai').expect;
+const mongoose = require('mongoose');
+const config = require('config');
+mongoose.Promise = global.Promise;
 
 let locationDB;
 let locationInput;
@@ -9,42 +11,51 @@ let company;
 
 describe('Testing the Locations Model', () => {
     before((done) => {
-        company = new Company({
-            name: 'TestCo',
-            email: 'testco@test.com',
-            phone: '12345'
-        });
-        company.save((err, company) => {
-            locationInput = {
-                name: 'TestLoc',
-                phone: '12345',
-                fax: '12345',
-                companyId: company._id.toString(),
-                email: 'testco@test.com',
-                houseNumber: '1',
-                street: 'Street',
-                town: 'Town',
-                postCode: 'PC1 1PC',
-                country: 'Country'
-            };
-
-            locationDB = new Location({
-                name: locationInput.name,
-                phone: locationInput.phone,
-                fax: locationInput.fax,
-                company: {
-                    name: company.name
-                },
-                email: locationInput.email,
-                address: {
-                    houseNumber: locationInput.houseNumber,
-                    street: locationInput.street,
-                    town: locationInput.town,
-                    postCode: locationInput.postCode,
-                    country: locationInput.country
-                }
+        mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});
+        mongoose.connection.once('open', () => {
+            //Resets the databse before creating the objects
+            mongoose.connection.dropDatabase(() => {
+                // Sets up the right input to an object
+                // and the model object with the properties
+                // from the input object
+                company = new Company({
+                    name: 'TestCo',
+                    email: 'testco@test.com',
+                    phone: '12345'
+                });
+                company.save((err, company) => {
+                    locationInput = {
+                        name: 'TestLoc',
+                        phone: '12345',
+                        fax: '12345',
+                        companyId: company._id.toString(),
+                        email: 'testco@test.com',
+                        houseNumber: '1',
+                        street: 'Street',
+                        town: 'Town',
+                        postCode: 'PC1 1PC',
+                        country: 'Country'
+                    };
+        
+                    locationDB = new Location({
+                        name: locationInput.name,
+                        phone: locationInput.phone,
+                        fax: locationInput.fax,
+                        company: {
+                            name: company.name
+                        },
+                        email: locationInput.email,
+                        address: {
+                            houseNumber: locationInput.houseNumber,
+                            street: locationInput.street,
+                            town: locationInput.town,
+                            postCode: locationInput.postCode,
+                            country: locationInput.country
+                        }
+                    });
+                });
+                done();
             });
-            done();
         });
     });
 
@@ -128,10 +139,7 @@ describe('Testing the Locations Model', () => {
     });
 
     after((done) => {
-        Location.deleteMany({}, (err) => {
-            Company.deleteMany({}, (err) => {
-                done();
-            });
-        });
+        mongoose.connection.close();
+        done();
     });
 });

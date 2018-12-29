@@ -110,7 +110,7 @@ describe('Company Model Tests', () =>{
     });
 
     after((done) => {
-        Company.deleteMany(() => {
+        Company.deleteMany({}, () => {
             done();
         });
     });

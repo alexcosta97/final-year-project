@@ -5,6 +5,7 @@ const expect = require('chai').expect;
 
 let locationDB;
 let locationInput;
+let company;
 
 describe('Testing the Locations Model', () => {
     before((done) => {

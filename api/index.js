@@ -31,7 +31,7 @@ if(!config.get('jwtPrivateKey')){
 }
 
 //Configuring Mongoose
-mongoose.connect('mongodb://localhost/unify', {useNewUrlParser: true, useCreateIndex: true});
+mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});
 
 //Configuring Joi validation to include ObjectID validation
 const Joi = require('joi');

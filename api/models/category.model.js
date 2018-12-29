@@ -14,11 +14,12 @@ const CategorySchema = new Schema({
     //Not requesting all the info from company so using a custom schema
     company:{
         type: new Schema({
-            name: {
+            name:{
                 type: String,
                 required: true
             }
-        })
+        }),
+        required: true
     }
 });
 

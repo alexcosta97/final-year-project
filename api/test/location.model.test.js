@@ -72,6 +72,61 @@ describe('Testing the Locations Model', () => {
         });
     });
 
+    describe('save()', () => {
+        it('should save a location', () => {
+            locationDB.save((err, location) => {
+                expect(err).to.be.null;
+                expect(location).to.not.be.null;
+            });
+        });
+    })
+
+    describe('findOne()', () => {
+        it('should throw an error if given the wrong information', () => {
+            let fakeID = 'Hello';
+            Location.findOne({_id: fakeID}, (err, location) => {
+                expect(err).to.exist;
+                expect(err).to.not.be.null;
+                expect(location).to.not.exist;
+            });
+        });
+
+        it('should send back a location if given the right information', () => {
+            Location.findOne({_id: locationDB._id}, (err, location) => {
+                expect(err).to.not.exist;
+                expect(location).to.exist;
+                expect(location).to.not.be.null;
+            });
+        });
+    });
+
+    describe('updateOne()', () => {
+        it('should update a location when given the right information', () => {
+            Location.updateOne({_id: locationDB._id}, {name: 'Test Location'}, (err) => {
+                expect(err).to.not.exist;
+            });
+        });
+    });
+
+    describe('removeOne()', () => {
+        it('should throw an error if given the wrong information', () => {
+            let fakeID = 'Hello';
+            Location.deleteOne({_id: fakeID}, (err, location) => {
+                expect(err).to.exist;
+                expect(err).to.not.be.null;
+                expect(location).to.not.exist;
+            });
+        });
+
+        it('should send back a location if given the right information', () => {
+            Location.deleteOne({_id: locationDB._id}, (err, location) => {
+                expect(err).to.not.exist;
+                expect(location).to.exist;
+                expect(location).to.not.be.null;
+            });
+        });
+    });
+
     after((done) => {
         Location.deleteMany(() => {
             Company.deleteMany(() => {

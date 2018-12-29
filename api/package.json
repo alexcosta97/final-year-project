@@ -33,5 +33,9 @@
     "chai": "^4.2.0",
     "chai-http": "^4.2.0",
     "mocha": "^5.2.0"
-  }
+  },
+  "engines": {
+    "node": "10.13.0"
+  },
+  "engineStrict": true
 }

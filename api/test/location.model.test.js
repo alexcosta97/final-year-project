@@ -127,8 +127,8 @@ describe('Testing the Locations Model', () => {
     });
 
     after((done) => {
-        Location.deleteMany(() => {
-            Company.deleteMany(() => {
+        Location.deleteMany({}, () => {
+            Company.deleteMany({}, () => {
                 done();
             });
         });

@@ -85,7 +85,7 @@ describe('Company Model Tests', () =>{
     });
 
     describe('Testing the update method', () => {
-        it(`should update an existing object when given the right information`, (done) => {
+        it(`should update an existing object when given the right information`, () => {
             companyDB.updateOne({name: 'TestCompany'}, (err) => {
                 expect(err).to.not.exist;
             });

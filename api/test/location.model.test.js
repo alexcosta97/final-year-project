@@ -94,7 +94,6 @@ describe('Testing the Locations Model', () => {
         it('should send back a location if given the right information', () => {
             Location.findOne({_id: locationDB._id}, (err, location) => {
                 expect(err).to.not.exist;
-                expect(location).to.exist;
                 expect(location).to.not.be.null;
             });
         });

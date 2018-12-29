@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
     if(!company) return res.status(400).send('Invalid company');
 
     const locations = [];
-    req.body.locations.foreach(function(item){
+    req.body.locations.foreach(async function(item){
         const location = await Location.findById(item);
         if(!location) return res.status(400).send('Invalid location');
         locations.push({

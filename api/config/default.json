@@ -1,4 +1,4 @@
 {
-    "jwtPrivateKey": "",
+    "jwtPrivateKey": "unify_jwtPrivateKey",
     "mongoConnectionString": "mongodb://localhost/unifyDev"
 }

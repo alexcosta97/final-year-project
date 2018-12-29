@@ -48,7 +48,7 @@ app.use(bodyParser.json({ type: 'application/json'}));
 app.use(helmet());
 
 //Hooking up api routers
-app.use('/api/categories', categories);
+//app.use('/api/categories', categories);
 /* app.use('/api/companies/', companies);
 app.use('/api/locations', locations);
 app.use('/api/orders', orders);
@@ -56,7 +56,7 @@ app.use('/api/products', products);
 app.use('/api/subcategories', subcategories);
 app.use('/api/suppliers', suppliers);
 app.use('/api/templates', templates);*/
-app.use('/api/users', users);
+//app.use('/api/users', users);
 
 //PORT
 const port = process.env.PORT || 3000;

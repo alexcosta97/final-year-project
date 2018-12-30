@@ -42,6 +42,7 @@ describe('Testing the Locations Model', () => {
                         phone: locationInput.phone,
                         fax: locationInput.fax,
                         company: {
+                            _id: company._id,
                             name: company.name
                         },
                         email: locationInput.email,
@@ -53,8 +54,8 @@ describe('Testing the Locations Model', () => {
                             country: locationInput.country
                         }
                     });
+                    done();
                 });
-                done();
             });
         });
     });
@@ -85,55 +86,61 @@ describe('Testing the Locations Model', () => {
     });
 
     describe('save()', () => {
-        it('should save a location', () => {
+        it('should save a location', (done) => {
             locationDB.save((err, location) => {
                 expect(err).to.be.null;
                 expect(location).to.not.be.null;
+                done();
             });
         });
     })
 
     describe('findOne()', () => {
-        it('should throw an error if given the wrong information', () => {
+        it('should throw an error if given the wrong information', (done) => {
             let fakeID = 'Hello';
             Location.findOne({_id: fakeID}, (err, location) => {
                 expect(err).to.exist;
                 expect(err).to.not.be.null;
                 expect(location).to.not.exist;
+                done();
             });
         });
 
-        it('should send back a location if given the right information', () => {
+        it('should send back a location if given the right information', (done) => {
             Location.findOne({_id: locationDB._id}, (err, location) => {
                 expect(err).to.not.exist;
                 expect(location).to.not.be.null;
+                done();
             });
         });
     });
 
     describe('updateOne()', () => {
-        it('should update a location when given the right information', () => {
+        it('should update a location when given the right information', (done) => {
             Location.updateOne({_id: locationDB._id}, {name: 'Test Location'}, (err) => {
                 expect(err).to.not.exist;
+                done();
             });
         });
     });
 
     describe('removeOne()', () => {
-        it('should throw an error if given the wrong information', () => {
+        it('should throw an error if given the wrong information', (done) => {
             let fakeID = 'Hello';
             Location.deleteOne({_id: fakeID}, (err, location) => {
                 expect(err).to.exist;
                 expect(err).to.not.be.null;
                 expect(location).to.not.exist;
+                done();
             });
         });
 
-        it('should send back a location if given the right information', () => {
+        it('should send back a location if given the right information', (done) => {
             Location.deleteOne({_id: locationDB._id}, (err, location) => {
                 expect(err).to.not.exist;
                 expect(location).to.exist;
                 expect(location).to.not.be.null;
+                done();
             });
         });
     });

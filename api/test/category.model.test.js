@@ -1,9 +1,10 @@
-const {Category, validate} = require('../models/category.model');
+const {validate} = require('../models/category.model');
 const {Company} = require('../models/company.model');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const config = require('config');
 mongoose.Promise = global.Promise;
+const Category = mongoose.model('Category');
 
 let category;
 let input;
@@ -14,25 +15,28 @@ describe('Testing the Category model', () =>{
         mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});
         mongoose.connection.once('open', () => {
             //Resets the databse before creating the objects
-            mongoose.connection.dropDatabase(() => {
-                company = new Company({
-                    name: 'TestCo',
-                    email: 'testco@test.com',
-                    phone: '12345'
-                });
-                company.save((err, company) => {
-                    input = {
-                        name: 'Category',
-                        companyId: company._id.toString()
-                    };
-                    category = new Category({
-                        name: input.name,
-                        company: {
-                            name: company.name
-                        }
+            mongoose.connection.collections.companies.drop(() => {
+                mongoose.connection.collections.categories.drop(() => {
+                    company = new Company({
+                        name: 'TestCo',
+                        email: 'testco@test.com',
+                        phone: '12345'
                     });
-                });
-                done();
+                    company.save((err, company) => {
+                        input = {
+                            name: 'Category',
+                            companyId: company._id.toString()
+                        };
+                        category = new Category({
+                            name: input.name,
+                            company: {
+                                _id: company._id,
+                                name: company.name
+                            }
+                        });
+                        done();
+                    });
+                })
             });
         });
     });
@@ -62,10 +66,12 @@ describe('Testing the Category model', () =>{
     });
 
     describe('save()', () => {
-        it('should save a category', () => {
+        it('should save a category', (done) => {
             category.save((err, category) => {
-                expect(err).to.be.null;
+                expect(err).to.not.exist;
+                expect(category).to.exist;
                 expect(category).to.not.be.null;
+                done();
             });
         });
     });

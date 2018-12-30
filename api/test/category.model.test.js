@@ -96,6 +96,43 @@ describe('Testing the Category model', () =>{
         });
     });
 
+    describe('updateOne()', () => {
+        it('should update the category if given the right information', (done) => {
+            Category.updateOne({_id: category._id}, {name: 'CatTest'}, (err) => {
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
+        it(`shouldn't update the category if given the wrong object id`, (done) => {
+            Category.updateOne({_id: 'Hello'}, {name: 'Category'}, (err) => {
+                expect(err).to.exist;
+                expect(err).to.not.be.null;
+                done();
+            });
+        });
+    });
+
+    describe('removeOne()', () => {
+        it('should throw an error if given the wrong id', (done) => {
+            Category.deleteOne({_id: 'Hello'}, (err, category) => {
+                expect(err).to.exist;
+                expect(err).to.not.be.null;
+                expect(category).to.not.exist;
+                done();
+            });
+        });
+
+        it('should send back the deleted category if given the right information', (done) => {
+            Category.deleteOne({_id: category._id}, (err, category) => {
+                expect(err).to.not.exist;
+                expect(category).to.exist;
+                expect(category).to.not.be.null;
+                done();
+            });
+        });
+    });
+
     after((done) => {
         mongoose.connection.close();
         done();

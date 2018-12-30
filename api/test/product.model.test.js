@@ -127,7 +127,7 @@ describe('Product Model', () => {
             });
         });
 
-        it(`should send back the deleted subcategory if given the right id`, (done) => {
+        it(`should send back the deleted product if given the right id`, (done) => {
             Product.deleteOne({_id: product._id}, (err, product) => {
                 expect(err).to.not.exist;
                 expect(product).to.exist;

@@ -117,4 +117,42 @@ describe('Subcategory Model', () => {
             });
         });
     });
+
+    describe('Update', () => {
+        it(`should update the subcategory if given the right information`, (done) => {
+            Subcategory.updateOne({_id: subcategory._id},
+                {name: 'SubCatTest'}, (err) => {
+                    expect(err).to.not.exist;
+                    done();
+                });
+        });
+
+        it(`shouldn't update the category if given the wrong object id`, (done) => {
+            Subcategory.updateOne({_id: 'FakeID'}, {name: 'Subcategory'}, (err) => {
+                expect(err).to.exist;
+                expect(err).to.not.be.null;
+                done();
+            });
+        });
+    });
+
+    describe('Remove', () => {
+        it(`should throw an error if given the wrong object id`, (done) => {
+            Subcategory.deleteOne({_id: 'FakeID'}, (err, subcategory) => {
+                expect(err).to.exist;
+                expect(err).to.not.be.null;
+                expect(subcategory).to.not.exist;
+                done();
+            });
+        });
+
+        it(`should send back the deleted subcategory if given the right id`, (done) => {
+            Subcategory.deleteOne({_id: subcategory._id}, (err, subcategory) => {
+                expect(err).to.not.exist;
+                expect(subcategory).to.exist;
+                expect(subcategory).to.not.be.null;
+                done();
+            });
+        });
+    });
 });

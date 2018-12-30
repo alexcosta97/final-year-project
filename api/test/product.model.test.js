@@ -131,7 +131,7 @@ describe('Product Model', () => {
             Product.deleteOne({_id: product._id}, (err, product) => {
                 expect(err).to.not.exist;
                 expect(product).to.exist;
-                expect(Product).to.not.be.null;
+                expect(product).to.not.be.null;
                 done();
             });
         });

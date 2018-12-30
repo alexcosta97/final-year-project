@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Joi = require('Joi');
+const Joi = require('../config/joi');
 
 //creating custom schema for products' subdocument
 const productSchema = new Schema({
@@ -49,16 +49,12 @@ const Subcategory = mongoose.model('Subcategory', SubcategorySchema);
 
 //creating client input validation function
 const validateSubcategory = (subcategory) => {
-    //creating product item schema to use in array
-    const productValidationSchema = {
-        productId: Joi.objectId().required()
-    };
 
     //creating joi-specific schema to validate the expected client data
     const schema = {
         name: Joi.string().min(5).max(50).required(),
         category: Joi.objectId().required(),
-        products: Joi.array().items(productValidationSchema).min(1).required()
+        products: Joi.array().items(Joi.objectId().required()).min(1).required()
     };
 
     return Joi.validate(subcategory, schema);

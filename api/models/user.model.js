@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const Schema = mongoose.Schema;
-const Joi = require('joi');
+const Joi = require('../config/joi');
 
 // Add enum for user roles
 
@@ -63,10 +63,6 @@ const User = mongoose.model('User', UserSchema);
 
 //Creating client input validation method
 const validateUser = (user) => {
-    //creating location item schema
-    const locationItem = {
-        locationId: Joi.objectId().required()
-    };
 
     const mainInput = {
         employeeID: Joi.string().min(3).max(50),
@@ -75,7 +71,7 @@ const validateUser = (user) => {
         firstName: Joi.string().min(3).max(255).required(),
         lastName: Joi.string().min(3).max(255).required(),
         companyId: Joi.objectId().required(),
-        locations: Joi.array().items(locationItem).min(1)
+        locations: Joi.array().items(Joi.objectId().required()).min(1)
     };
 
     return Joi.validate(user, mainInput);

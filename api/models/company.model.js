@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Joi = require('joi');
+const Joi = require('../config/joi');
 const Schema = mongoose.Schema;
 
 const CompanySchema = new Schema({

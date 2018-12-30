@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Joi = require('joi');
+const Joi = require('../config/joi');
 
 //creating embedded document containing information about product ordered and quantity ordered
 const ProductOrderedSchema = new Schema({

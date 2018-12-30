@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Joi = require('joi');
+const Joi = require('../config/joi');
 
 //creating embedded address schema
 const addressSchema = new Schema({
@@ -46,7 +46,7 @@ const LocationSchema = new Schema({
     name:{
         type: String,
         required: true,
-        minlength: 5,
+        minlength: 3,
         maxlength: 50
     },
     phone:{
@@ -87,7 +87,7 @@ const Location = mongoose.model('Location', LocationSchema);
 const validateLocation = (location) => {
     //creating joi-specific validation schema
     const schema = {
-        name: Joi.string().min(5).max(50).required(),
+        name: Joi.string().min(3).max(50).required(),
         phone: Joi.string().min(5).max(50).required(),
         fax: Joi.string().min(5).max(50),
         companyId: Joi.objectId().required(),

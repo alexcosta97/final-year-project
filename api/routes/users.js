@@ -3,6 +3,8 @@ const {User, validate} = require('../models/user.model');
 const {Company} = require('../models/company.model');
 const {Location} = require('../models/location.model');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const config = require('config');
 
 router.post('/', async (req, res) => {
     const {error} = validate(req.body);
@@ -12,7 +14,7 @@ router.post('/', async (req, res) => {
     if(!company) return res.status(400).send('Invalid company');
 
     const locations = [];
-    req.body.locations.foreach(function(item){
+    req.body.locations.foreach(async function(item){
         const location = await Location.findById(item);
         if(!location) return res.status(400).send('Invalid location');
         locations.push({
@@ -46,6 +48,9 @@ router.post('/', async (req, res) => {
         name: user.name,
         email: user.email
     };
+    const token = jwt.sign({_id: user._id}, config.get('jwtPrivateKey'));
 
-    res.send(resUser);
-})
+    res.header('x-auth-token', token).send(resUser);
+});
+
+module.exports = router;

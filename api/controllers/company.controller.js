@@ -1,12 +1,9 @@
-const {Company} = require('../models/company.model');
+const {Company, validate} = require('../models/company.model');
 const Fawn = require('fawn');
 const mongoose = require('mongoose');
 const Joi = require('../config/joi');
 
 Fawn.init(mongoose);
-
-//Create validation methods
-
 
 const get = async (req, res) => {
     let company;
@@ -23,4 +20,19 @@ const get = async (req, res) => {
     res.send(company);
 };
 
+const create = async(req, res) => {
+    const {error} = validate(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
+
+    let company = new Company(req.body);
+    await company.save();
+    res.send(company);
+}
+
+const update = async (req, res) => {
+    let company
+}
+
 exports.get = get;
+exports.create = create;
+exports.update = update;

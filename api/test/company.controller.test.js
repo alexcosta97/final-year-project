@@ -19,7 +19,6 @@ describe('Company Controller', () => {
                     phone: '12345'
                 });
                 company.save((err, company) => {
-                    console.log(company._id);
                     done();
                 });
             });
@@ -68,6 +67,42 @@ describe('Company Controller', () => {
     });
 
     describe('POST method', () => {
-        
+        let input = {
+            name: 'TestCo',
+            email: 'mail@testco.com',
+            phone: '12345'
+        };
+
+        it('should send back the newly created company if given the right input', (done) => {
+            chai.request(app)
+            .post('/api/companies')
+            .send(input)
+            .then((res) => {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                //Assertions about the response body
+                expect(res.body).to.be.an('object').and.to.have.property('name', company.name);
+                expect(res.body).to.have.property('email', company.email);
+                expect(res.body).to.have.property('phone', company.phone);
+                done();
+            });
+        });
+
+        it(`should send an error message and status code 400 if received invalid input`, (done) => {
+            input = {
+                name: 'TestCo',
+                phone: '12345'
+            };
+
+            chai.request(app)
+            .post('/api/companies')
+            .send(input)
+            .then((res) => {
+                expect(res).to.have.status(400);
+                expect(res).to.be.html;
+                done();
+            });
+        });
     });
 });

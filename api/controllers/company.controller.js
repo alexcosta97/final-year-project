@@ -1,7 +1,6 @@
 const {Company, validate} = require('../models/company.model');
 const Fawn = require('fawn');
 const mongoose = require('mongoose');
-const Joi = require('../config/joi');
 
 Fawn.init(mongoose);
 
@@ -29,10 +28,5 @@ const create = async(req, res) => {
     res.send(company);
 }
 
-const update = async (req, res) => {
-    let company
-}
-
 exports.get = get;
 exports.create = create;
-exports.update = update;

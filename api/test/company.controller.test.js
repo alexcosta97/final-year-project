@@ -43,5 +43,31 @@ describe('Company Controller', () => {
                 done();
             });
         });
+
+        it(`should send a 400 status code and an error message if the parameter sent is not an object ID`, (done) => {
+            chai.request(app)
+            .get('/api/companies/fakeID')
+            .end((err, res) => {
+                //Assertions about the reponse object
+                expect(res).to.have.status(400);
+                expect(res).to.be.html;
+                done();
+            });
+        });
+
+        it(`should send a 404 status code and an error message if the parameter sent is an ID that doesn't exist in the datbase`, (done) => {
+            chai.request(app)
+            .get('/api/companies/507f1f77bcf86cd799439011')
+            .end((err, res) => {
+                //Assertions about the reponse object
+                expect(res).to.have.status(404);
+                expect(res).to.be.html;
+                done();
+            });
+        });
+    });
+
+    describe('POST method', () => {
+        
     });
 });

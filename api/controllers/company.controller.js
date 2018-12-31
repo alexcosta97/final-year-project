@@ -28,5 +28,21 @@ const create = async(req, res) => {
     res.send(company);
 }
 
+const update = async (req, res) => {
+    const {error} = validate(req.body);
+    if(error) return res.status(400).json({message: error.details[0].message});
+    try{
+        await Company.updateOne({_id: req.params.id}, req.body);
+    }
+    catch(err){
+        return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
+    }
+
+    res.send({
+        message: 'The operation was successful.'
+    });
+}
+
 exports.get = get;
 exports.create = create;
+exports.update = update;

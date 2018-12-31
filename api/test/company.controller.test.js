@@ -105,4 +105,54 @@ describe('Company Controller', () => {
             });
         });
     });
+
+    describe('PUT method', () => {
+        let input = {
+            name: 'TestinCo',
+            email: 'mail@testinco.com',
+            phone: '1234567'
+        };
+
+        it(`should update the company with the given id`, (done) => {
+            chai.request(app)
+            .put(`/api/companies/${company._id}`)
+            .send(input)
+            .then((res => {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', 'The operation was successful.');
+                done();
+            }));
+        });
+
+        it(`should send an error message when sending an invalid input`, (done) => {
+            input.email = 'mail';
+            chai.request(app)
+            .put(`/api/companies/${company._id}`)
+            .send(input)
+            .then(res => {
+                expect(res).to.have.status(400);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message');
+                done();
+            });
+        });
+
+        it(`should send an easter egg when sending an invalid id`, (done) => {
+            input.email = 'mail@testco.com';
+            chai.request(app)
+            .put('/api/companies/FakeID')
+            .send(input)
+            .then(res => {
+                expect(res).to.have.status(418);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', `I'm a teapot. Don't ask me to brew coffee.`);
+                done();
+            });
+        });
+    });
 });

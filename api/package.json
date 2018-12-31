@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index",
-    "test": "NODE_ENV=test mocha --timeout 10000 --exit"
+    "test": "mocha --timeout 10000 --exit"
   },
   "keywords": [
     "API",

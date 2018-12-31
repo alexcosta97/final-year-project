@@ -1,9 +1,9 @@
 const router = require('express').Router();
-const companies = '';
+const companies = require('../controllers/company.controller');
 
 //Setting up company routes
-router.get('/:id', companies.getHandler);
-router.post('/', companies.create);
+router.get('/:id', companies.get);
+// router.post('/', companies.create);
 
 //Exporting router
 module.exports = router;

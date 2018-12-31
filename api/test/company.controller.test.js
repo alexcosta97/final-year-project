@@ -2,20 +2,27 @@ const app = require('../index');
 const chai = require('chai');
 chai.use(require('chai-http'));
 const expect = chai.expect;
+const mongoose = require('mongoose');
+const config = require('config');
 const {Company} = require('../models/company.model');
 
 let company;
 
 describe('Company Controller', () => {
     before((done) => {
-        company = new Company({
-            name: 'TestCo',
-            email: 'mail@testco.com',
-            phone: '12345'
-        });
-        company.save((err, company) => {
-            if(err) done(err);
-            done();
+        mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});
+        mongoose.connection.once('open', () => {
+            mongoose.connection.collections.companies.drop(() => {
+                company = new Company({
+                    name: 'TestCo',
+                    email: 'mail@testco.com',
+                    phone: '12345'
+                });
+                company.save((err, company) => {
+                    console.log(company._id);
+                    done();
+                });
+            });
         });
     });
 
@@ -33,12 +40,8 @@ describe('Company Controller', () => {
                 expect(res.body).to.be.an('object').and.to.have.property('name', company.name);
                 expect(res.body).to.have.property('email', company.email);
                 expect(res.body).to.have.property('phone', company.phone);
+                done();
             });
         });
     });
-
-    after((done) => {
-        Company.remove().exec();
-        done();
-    })
 });

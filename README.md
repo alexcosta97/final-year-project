@@ -1,4 +1,6 @@
 # final-year-project
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/alexcosta97/final-year-project.svg?columns=all)](https://waffle.io/alexcosta97/final-year-project)
+
 Repository hosting all the data for my university Final Year Project, from reports to source code.
 
 ## Running the API

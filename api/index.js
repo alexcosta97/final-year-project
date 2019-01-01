@@ -7,7 +7,7 @@ const config = require('config');
 const bodyParser = require('body-parser');
 
 //Require api routers
-//const categories = require('./routes/categories');
+const categories = require('./routes/categories');
 const companies = require('./routes/companies');
 const locations = require('./routes/locations');
 // const orders = require('./routes/orders');
@@ -43,8 +43,8 @@ app.use(bodyParser.json({ type: 'application/json'}));
 app.use(helmet());
 
 //Hooking up api routers
-//app.use('/api/categories', categories);
-app.use('/api/companies/', companies);
+app.use('/api/categories', categories);
+app.use('/api/companies', companies);
 app.use('/api/locations', locations);
 // app.use('/api/orders', orders);
 // app.use('/api/products', products);

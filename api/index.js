@@ -13,7 +13,7 @@ const companies = require('./routes/companies');
 // const orders = require('./routes/orders');
 // const products = require('./routes/products');
 // const subcategories = require('./routes/subcategories');
-// const suppliers = require('./routes/suppliers');
+const suppliers = require('./routes/suppliers');
 // const templates = require('./routes/templates');
 //const users = require('./routes/users');
 
@@ -49,7 +49,7 @@ app.use('/api/companies/', companies);
 // app.use('/api/orders', orders);
 // app.use('/api/products', products);
 // app.use('/api/subcategories', subcategories);
-// app.use('/api/suppliers', suppliers);
+app.use('/api/suppliers', suppliers);
 // app.use('/api/templates', templates);
 //app.use('/api/users', users);
 

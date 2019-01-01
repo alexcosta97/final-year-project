@@ -1,8 +1,10 @@
 const router = require('express').Router();
-const suppliers = '';
+const suppliers = require('../controllers/supplier.controller');
 
-router.get('/', suppliers.getAll);
-router.get('/:id', suppliers.getOne);
-router.post('/', suppliers.create);
-router.put('/:id', suppliers.update);
-router.delete('/:id', suppliers.delete);
+router.get('/', suppliers.readAll);
+// router.get('/:id', suppliers.getOne);
+// router.post('/', suppliers.create);
+// router.put('/:id', suppliers.update);
+// router.delete('/:id', suppliers.delete);
+
+module.exports = router;

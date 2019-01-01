@@ -58,7 +58,27 @@ const update = async (req, res) => {
     });
 };
 
+const del = async (req, res) => {
+    let supplier;
+
+    try{
+        supplier = await Supplier.findOneAndDelete({_id: req.params.id}).exec();
+    }
+    catch(err){
+        return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
+    }
+
+    if(!supplier){
+        return res.status(404).json({message: `There was no company with the given ID`});
+    }
+
+    res.json({
+        message: 'The operation was successful.'
+    });
+};
+
 exports.readAll = readAll;
 exports.read = read;
 exports.create = create;
 exports.update = update;
+exports.del = del;

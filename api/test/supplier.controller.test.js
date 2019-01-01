@@ -178,4 +178,42 @@ describe('Supplier Controller', () => {
             });
         });
     });
+
+    describe('Delete method', () => {
+        it('should delete the supplier with the given id and send a success message', (done) => {
+            chai.request(app)
+            .del(`/api/suppliers/${supplier._id}`)
+            .end((err, res) => {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', 'The operation was successful.');
+                done();
+            });
+        });
+
+        it(`should send an error message if the given id is invalid`, (done) => {
+            chai.request(app)
+            .del('/api/suppliers/fakeID')
+            .end((err, res) => {
+                expect(res).to.have.status(418);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', `I'm a teapot. Don't ask me to brew coffee.`);
+                done();
+            });
+        });
+
+        it(`should send a 404 status code and error message if the supplier with the given ID doesn't exist`, (done) => {
+            chai.request(app)
+            .del('/api/suppliers/507f1f77bcf86cd799439011')
+            .end((err, res) => {
+                expect(res).to.have.status(404);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', `There was no company with the given ID`);
+                done();
+            });
+        });
+    });
 });

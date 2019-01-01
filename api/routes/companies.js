@@ -5,6 +5,7 @@ const companies = require('../controllers/company.controller');
 router.get('/:id', companies.get);
 router.post('/', companies.create);
 router.put('/:id', companies.update);
+router.delete('/:id', companies.del);
 
 //Exporting router
 module.exports = router;

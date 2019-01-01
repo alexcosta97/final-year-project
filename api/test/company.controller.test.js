@@ -49,18 +49,23 @@ describe('Company Controller', () => {
             .end((err, res) => {
                 //Assertions about the reponse object
                 expect(res).to.have.status(400);
-                expect(res).to.be.html;
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message');
                 done();
             });
         });
 
         it(`should send a 404 status code and an error message if the parameter sent is an ID that doesn't exist in the datbase`, (done) => {
+            //non-existent ID for this database copied from MongoDB's documentation
             chai.request(app)
             .get('/api/companies/507f1f77bcf86cd799439011')
             .end((err, res) => {
                 //Assertions about the reponse object
                 expect(res).to.have.status(404);
-                expect(res).to.be.html;
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', 'There was no company with the given ID');
                 done();
             });
         });
@@ -100,7 +105,9 @@ describe('Company Controller', () => {
             .send(input)
             .then((res) => {
                 expect(res).to.have.status(400);
-                expect(res).to.be.html;
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message');
                 done();
             });
         });
@@ -151,6 +158,57 @@ describe('Company Controller', () => {
                 expect(res).to.be.json;
                 expect(res.body).to.be.an('object');
                 expect(res.body).to.have.property('message', `I'm a teapot. Don't ask me to brew coffee.`);
+                done();
+            });
+        });
+
+        it(`should send an error message if the company doesn't exist`, (done) => {
+            chai.request(app)
+            .put('/api/companies/507f1f77bcf86cd799439011')
+            .send(input)
+            .then(res => {
+                expect(res).to.have.status(404);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', 'There was no company with the given ID');
+                done();
+            });
+        });
+    });
+
+    describe('Delete method', () => {
+        it('should delete the company with the given id and send a success message', (done) => {
+            chai.request(app)
+            .del(`/api/companies/${company._id}`)
+            .end((err, res) => {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', 'The operation was successful.');
+                done();
+            });
+        });
+
+        it(`should send an error message if the given id is invalid`, (done) => {
+            chai.request(app)
+            .del('/api/companies/fakeID')
+            .end((err, res) => {
+                expect(res).to.have.status(418);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', `I'm a teapot. Don't ask me to brew coffee.`);
+                done();
+            });
+        });
+
+        it(`should send a 404 status code and error message if the company with the given ID doesn't exist`, (done) => {
+            chai.request(app)
+            .del('/api/companies/507f1f77bcf86cd799439011')
+            .end((err, res) => {
+                expect(res).to.have.status(404);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', `There was no company with the given ID`);
                 done();
             });
         });

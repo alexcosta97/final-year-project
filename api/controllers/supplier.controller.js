@@ -13,4 +13,20 @@ const readAll = async (req, res) => {
     res.json(suppliers);
 };
 
+const read = async (req, res) => {
+    let supplier;
+    try{
+        supplier = await Supplier.findOne({_id: req.params.id}).exec();
+    } catch(err){
+        return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
+    }
+
+    if(!supplier || supplier === null){
+        return res.status(404).json({message: 'There was no supplier with the given ID.'});
+    }
+
+    res.json(supplier);
+};
+
 exports.readAll = readAll;
+exports.read = read;

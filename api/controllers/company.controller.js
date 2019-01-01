@@ -1,8 +1,6 @@
 const {Company, validate} = require('../models/company.model');
-const Fawn = require('fawn');
 const mongoose = require('mongoose');
 
-Fawn.init(mongoose);
 
 const get = async (req, res) => {
     let company;

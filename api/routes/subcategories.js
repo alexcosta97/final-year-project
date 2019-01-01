@@ -1,8 +1,10 @@
 const router = require('express').Router();
-const subcategories = '';
+const subcategories = require('../controllers/subcategory.controller');
 
-router.get('/', subcategories.getAll);
-router.get('/:id', subcategories.getOne);
+router.get('/', subcategories.readAll);
+router.get('/:id', subcategories.read);
 router.post('/', subcategories.create);
 router.put('/:id', subcategories.update);
-router.delete('/:id', subcategories.delete);
+router.delete('/:id', subcategories.del);
+
+module.exports = router;

@@ -54,7 +54,7 @@ describe('Supplier Controller', () => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
                 expect(res.body).to.be.an('object');
-                expect(res.boby).to.have.property('name', supplier.name);
+                expect(res.body).to.have.property('name', supplier.name);
                 expect(res.body).to.have.property('phone', supplier.phone);
                 expect(res.body).to.have.property('email', supplier.email);
 
@@ -64,7 +64,7 @@ describe('Supplier Controller', () => {
 
         it(`should send an easter egg if the given id isn't in the valid format`, (done) => {
             chai.request(app)
-            .get('/api/supplers/fakeID')
+            .get('/api/suppliers/fakeID')
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(418);

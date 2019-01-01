@@ -123,4 +123,35 @@ describe('Location controller', () => {
             });
         });
     });
+
+    describe('Create', () => {
+        it('should send back the newly created location if given the right input', (done) => {
+            chai.request(app)
+            .post('/api/locations/')
+            .send(input)
+            .then(res => {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('name', input.name);
+                expect(res.body).to.have.property('phone', input.phone);
+                expect(res.body).to.have.property('email', input.email);
+                done();
+            });
+        });
+
+        it(`should send a 400 status code and an error message if the given input isn't valid`, (done) => {
+            input.email = 'mail';
+            chai.request(app)
+            .post('/api/locations/')
+            .send(input)
+            .then(res => {
+                expect(res).to.have.status(400);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message');
+                done();
+            });
+        });
+    });
 });

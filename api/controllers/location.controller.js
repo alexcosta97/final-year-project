@@ -108,7 +108,27 @@ const update = async (req, res) => {
     });
 };
 
+const del = async (req, res) => {
+    let location;
+
+    try{
+        location = await Location.findOneAndDelete({_id: req.params.id}).exec();
+    }
+    catch(err){
+        return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
+    }
+
+    if(!location){
+        return res.status(404).json({message: `There was no location with the given ID`});
+    }
+
+    res.json({
+        message: 'The operation was successful.'
+    });
+};
+
 exports.readAll = readAll;
 exports.read = read;
 exports.create = create;
 exports.update = update;
+exports.del = del;

@@ -1,4 +1,5 @@
 const {Location, validate} = require('../models/location.model');
+const {Company} = require('../models/company.model');
 const mongoose = require('mongoose');
 
 const readAll = async (req, res) => {
@@ -28,5 +29,40 @@ const read = async (req, res) => {
     res.json(location);
 };
 
+const create = async (req, res) => {
+    const {error} = validate(req.body);
+    if(error) return res.status(400).json({message: error.details[0].message});
+    
+
+    let company;
+    try{
+        company = await Company.findById(req.body.companyId);
+    }catch(err){
+        return res.status(400).json({message: 'Invalid Company'});
+    }
+    if(!company) return res.status(400).json({message: 'Invalid Company'});
+
+    let location = new Location({
+        name: req.body.name,
+        phone: req.body.phone,
+        fax: req.body.fax,
+        company: {
+            _id: company._id,
+            name: company.name
+        },
+        email: req.body.email,
+        address: {
+            houseNumber: req.body.houseNumber,
+            street: req.body.street,
+            town: req.body.town,
+            postCode: req.body.postCode,
+            country: req.body.country
+        }
+    });
+    await location.save();
+    res.json(location);
+};
+
 exports.readAll = readAll;
 exports.read = read;
+exports.create = create;

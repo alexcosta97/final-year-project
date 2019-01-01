@@ -78,4 +78,49 @@ describe('Location controller', () => {
             });
         });
     });
+
+    describe('Read single method', () => {
+        it('should send an object with the same properties as the ones of the location with the given id', (done) => {
+            chai.request(app)
+            .get(`/api/locations/${location._id}`)
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('name', location.name);
+                expect(res.body).to.have.property('phone', location.phone);
+                expect(res.body).to.have.property('email', location.email);
+
+                done();
+            });
+        });
+
+        it(`should send an easter egg if the given id isn't in the valid format`, (done) => {
+            chai.request(app)
+            .get('/api/locations/fakeID')
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+                expect(res).to.have.status(418);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', `I'm a teapot. Don't ask me to brew coffee.`);
+                done();
+            });
+        });
+
+        it(`should send a 404 status code and an error message if there is no location with the given ID`, (done) => {
+            chai.request(app)
+            .get('/api/locations/507f1f77bcf86cd799439011')
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+                expect(res).to.have.status(404);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', 'There was no location with the given ID.');
+
+                done();
+            });
+        });
+    });
 });

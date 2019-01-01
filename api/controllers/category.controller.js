@@ -1,6 +1,5 @@
 const {Category, validate} = require('../models/category.model');
 const {Company} = require('../models/company.model');
-const mongoose = require('mongoose');
 
 const readAll = async (req, res) => {
     let categories;

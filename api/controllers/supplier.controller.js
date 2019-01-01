@@ -69,7 +69,7 @@ const del = async (req, res) => {
     }
 
     if(!supplier){
-        return res.status(404).json({message: `There was no company with the given ID`});
+        return res.status(404).json({message: `There was no supplier with the given ID`});
     }
 
     res.json({

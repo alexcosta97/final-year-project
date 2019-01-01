@@ -211,7 +211,7 @@ describe('Supplier Controller', () => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;
                 expect(res.body).to.be.an('object');
-                expect(res.body).to.have.property('message', `There was no company with the given ID`);
+                expect(res.body).to.have.property('message', `There was no supplier with the given ID`);
                 done();
             });
         });

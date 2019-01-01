@@ -123,6 +123,7 @@ describe('Supplier Controller', () => {
 
     describe('Update', () => {
         it(`should update the supplier with the given id`, (done) => {
+            input.email = 'mail@supplierco.com';
             chai.request(app)
             .put(`/api/suppliers/${supplier._id}`)
             .send(input)
@@ -153,7 +154,7 @@ describe('Supplier Controller', () => {
         it(`should send an easter egg when sending an invalid id`, (done) => {
             input.email = 'mail@testco.com';
             chai.request(app)
-            .put('/api/supplier/FakeID')
+            .put('/api/suppliers/FakeID')
             .send(input)
             .then(res => {
                 expect(res).to.have.status(418);
@@ -176,5 +177,5 @@ describe('Supplier Controller', () => {
                 done();
             });
         });
-    })
+    });
 });

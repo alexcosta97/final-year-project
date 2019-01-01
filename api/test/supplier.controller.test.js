@@ -110,8 +110,8 @@ describe('Supplier Controller', () => {
             input.email = 'mail';
             chai.request(app)
             .post('/api/suppliers/')
-            .send(input);
-            then(res => {
+            .send(input)
+            .then(res => {
                 expect(res).to.have.status(400);
                 expect(res).to.be.json;
                 expect(res.body).to.be.an('object');

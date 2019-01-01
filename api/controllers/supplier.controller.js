@@ -28,5 +28,15 @@ const read = async (req, res) => {
     res.json(supplier);
 };
 
+const create = async (req, res) => {
+    const {error} = validate(req.body);
+    if(error) return res.status(400).json({message: error.details[0].message});
+
+    let supplier = new Supplier(req.body);
+    await supplier.save();
+    res.json(supplier);
+};
+
 exports.readAll = readAll;
 exports.read = read;
+exports.create = create;

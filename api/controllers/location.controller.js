@@ -63,6 +63,52 @@ const create = async (req, res) => {
     res.json(location);
 };
 
+const update = async (req, res) => {
+    let location;
+    const {error} = validate(req.body);
+    if(error) return res.status(400).json({message: error.details[0].message});
+
+    let company;
+    try{
+        company = await Company.findById(req.body.companyId);
+    }catch(err){
+        return res.status(400).json({message: 'Invalid Company'});
+    }
+
+    try{
+        location = await Location.findOneAndUpdate({_id: req.params.id}, {
+            name: req.body.name,
+            phone: req.body.phone,
+            fax: req.body.fax,
+            company: {
+                _id: company._id,
+                name: company.name
+            },
+            email: req.body.email,
+            address: {
+                houseNumber: req.body.houseNumber,
+                street: req.body.street,
+                town: req.body.town,
+                postCode: req.body.postCode,
+                country: req.body.country
+            }
+        }, {new: false}).exec();
+    }
+    catch(err){
+        return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
+    }
+
+    if(!location)
+    {
+        return res.status(404).json({message: `There was no location with the given ID.`});
+    }
+
+    res.json({
+        message: 'The operation was successful.'
+    });
+};
+
 exports.readAll = readAll;
 exports.read = read;
 exports.create = create;
+exports.update = update;

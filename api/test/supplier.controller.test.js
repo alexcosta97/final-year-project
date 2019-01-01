@@ -44,4 +44,49 @@ describe('Supplier Controller', () => {
             });
         });
     });
+
+    describe('Read single method', () => {
+        it('should send an object with the same properties as the ones of the supplier with the given id', (done) => {
+            chai.request(app)
+            .get(`/api/suppliers/${supplier._id}`)
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.boby).to.have.property('name', supplier.name);
+                expect(res.body).to.have.property('phone', supplier.phone);
+                expect(res.body).to.have.property('email', supplier.email);
+
+                done();
+            });
+        });
+
+        it(`should send an easter egg if the given id isn't in the valid format`, (done) => {
+            chai.request(app)
+            .get('/api/supplers/fakeID')
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+                expect(res).to.have.status(418);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', `I'm a teapot. Don't ask me to brew coffee.`);
+                done();
+            });
+        });
+
+        it(`shouold send a 404 status code and an error message if there is no supplier with the given ID`, (done) => {
+            chai.request(app)
+            .get('/api/suppliers/507f1f77bcf86cd799439011')
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+                expect(res).to.have.status(404);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', 'There was no supplier with the given ID.');
+
+                done();
+            });
+        });
+    });
 });

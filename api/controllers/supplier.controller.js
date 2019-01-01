@@ -37,6 +37,28 @@ const create = async (req, res) => {
     res.json(supplier);
 };
 
+const update = async (req, res) => {
+    let supplier;
+    const {error} = validate(req.body);
+    if(error) return res.status(400).json({message: error.details[0].message});
+    try{
+        supplier = await Supplier.findOneAndUpdate({_id: req.params.id}, req.body, {new: false}).exec();
+    }
+    catch(err){
+        return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
+    }
+
+    if(!supplier)
+    {
+        return res.status(404).json({message: `There was no supplier with the given ID.`});
+    }
+
+    res.json({
+        message: 'The operation was successful.'
+    });
+};
+
 exports.readAll = readAll;
 exports.read = read;
 exports.create = create;
+exports.update = update;

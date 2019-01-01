@@ -120,4 +120,62 @@ describe('Supplier Controller', () => {
             });
         });
     });
+
+    describe('Update', () => {
+        it(`should update the supplier with the given id`, (done) => {
+            input.email = 'mail@supplierco.com';
+            chai.request(app)
+            .put(`/api/suppliers/${supplier._id}`)
+            .send(input)
+            .then((res => {
+                expect(res).to.have.status(200);
+                expect(res).to.be.json;
+
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', 'The operation was successful.');
+                done();
+            }));
+        });
+
+        it(`should send an error message when sending an invalid input`, (done) => {
+            input.email = 'mail';
+            chai.request(app)
+            .put(`/api/suppliers/${supplier._id}`)
+            .send(input)
+            .then(res => {
+                expect(res).to.have.status(400);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message');
+                done();
+            });
+        });
+
+        it(`should send an easter egg when sending an invalid id`, (done) => {
+            input.email = 'mail@testco.com';
+            chai.request(app)
+            .put('/api/suppliers/FakeID')
+            .send(input)
+            .then(res => {
+                expect(res).to.have.status(418);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', `I'm a teapot. Don't ask me to brew coffee.`);
+                done();
+            });
+        });
+
+        it(`should send an error message if the supplier doesn't exist`, (done) => {
+            chai.request(app)
+            .put('/api/suppliers/507f1f77bcf86cd799439011')
+            .send(input)
+            .then(res => {
+                expect(res).to.have.status(404);
+                expect(res).to.be.json;
+                expect(res.body).to.be.an('object');
+                expect(res.body).to.have.property('message', 'There was no supplier with the given ID.');
+                done();
+            });
+        });
+    });
 });

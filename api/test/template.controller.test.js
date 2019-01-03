@@ -22,6 +22,7 @@ describe('Template controller', () => {
                 location = new Location({
                     name: 'Location',
                     phone: '12345',
+                    fax: '12345',
                     company: {
                         name: 'Company'
                     },
@@ -131,7 +132,7 @@ describe('Template controller', () => {
 
         it(`should send a 404 status code and an error message if there is no template with the given ID`, (done) => {
             chai.request(app)
-            .get('/api/template/507f1f77bcf86cd799439011')
+            .get('/api/templates/507f1f77bcf86cd799439011')
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(404);

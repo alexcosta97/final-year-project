@@ -117,7 +117,7 @@ const update = async (req, res) => {
             name: req.body.name,
             locations: locations,
             subcategories: subcategories,
-            orderDays: orderDays
+            orderDays: req.body.orderDays
         }, {new: false}).exec();
     }
     catch(err){

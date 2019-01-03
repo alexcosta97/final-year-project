@@ -1,8 +1,10 @@
 const router = require('express').Router();
-const templates = '';
+const templates = require('../controllers/template.controller');
 
-router.get('/', templates.getAll);
-router.get('/:id', templates.getOne);
+router.get('/', templates.readAll);
+router.get('/:id', templates.read);
 router.post('/', templates.create);
 router.put('/:id', templates.update);
-router.delete('/:id', templates.delete);
+router.delete('/:id', templates.del);
+
+module.exports = router;

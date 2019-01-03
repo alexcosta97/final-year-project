@@ -14,7 +14,7 @@ const locations = require('./routes/locations');
 const products = require('./routes/products');
 const subcategories = require('./routes/subcategories');
 const suppliers = require('./routes/suppliers');
-// const templates = require('./routes/templates');
+const templates = require('./routes/templates');
 //const users = require('./routes/users');
 
 //Initialize express app
@@ -50,7 +50,7 @@ app.use('/api/locations', locations);
 app.use('/api/products', products);
 app.use('/api/subcategories', subcategories);
 app.use('/api/suppliers', suppliers);
-// app.use('/api/templates', templates);
+app.use('/api/templates', templates);
 //app.use('/api/users', users);
 
 //PORT

@@ -1,6 +1,4 @@
 const {User} = require('../models/user.model');
-const {Location} = require('../models/location.model');
-const {Company} = require('../models/company.model');
 const chai = require('chai');
 chai.use(require('chai-http'));
 chai.use(require('chai-jwt'));
@@ -10,8 +8,6 @@ const config = require('config');
 const {decoder} = require('../services/tokenAuth');
 
 let user;
-let location;
-let company;
 let token;
 
 describe('Token Authentication', () => {

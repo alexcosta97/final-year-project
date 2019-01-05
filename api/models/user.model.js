@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
-const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 const Schema = mongoose.Schema;
 const Joi = require('../config/joi');
+const jwt = require('jsonwebtoken');
+const config = require('config');
 
 // Add enum for user roles
 
@@ -58,6 +60,45 @@ const UserSchema = new Schema({
         required: true
     }
 });
+
+// Method that automatically hashes passwords before saving
+UserSchema.pre('save', async function(next){
+    if(this.password){
+        console.log(this.password);
+        this.password = await this.hashPassword(this.password);
+    }
+    next();
+});
+
+UserSchema.pre('update', async function(next){
+    if(this.password){
+        this.password = await this.hashPassword(this.password);
+    }
+    next();
+});
+
+UserSchema.pre('findOneAndUpdate', async function(next){
+    if(this.password){
+        this.password = await this.hashPassword(this.password);
+    }
+    next();
+});
+
+UserSchema.pre('updateOne', async function(next){
+    if(this.password){
+        this.password = await this.hashPassword(this.password);
+    }
+    next();
+});
+
+UserSchema.methods.hashPassword = async function(password){
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
+};
+
+UserSchema.methods.generateAuthToken = function() {
+    return jwt.sign({id: this._id}, config.get('jwtPrivateKey'));
+};
 
 const User = mongoose.model('User', UserSchema);
 

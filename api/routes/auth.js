@@ -2,26 +2,25 @@ const router = require('express').Router();
 const {User} = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
-const jwt = require('jsonwebtoken');
-const config = require('config');
 
 router.post('/', async (req, res) => {
     //validate client input
     const {error} = validate(req.body);
-    if(error) return res.status(400).send(error.details[0].message);
+    if(error) return res.status(400).json({message: error.details[0].message});
 
     //check that the user exists
     let user = await User.findOne({email: req.body.email}).exec();
-    if(!user) return res.status(400).send('Invalid email or password');
+    if(!user) return res.status(400).json({message: 'Invalid email or password'});
 
     //validate password
     const validPassword = await bcrypt.compare(req.body.password, user.password);
 
-    if(!validPassword) return res.status(400).send('Invalid email or password');
+    if(!validPassword) return res.status(400).json({message: 'Invalid email or password'});
 
     //Create and send JSON Web Token
     const token = user.generateAuthToken();
-    res.send(token);
+    res.set('x-auth-token', token);
+    res.json({message: `You're logged in!`});
 });
 
 //Creating input validation for authentication

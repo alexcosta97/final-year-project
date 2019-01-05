@@ -56,8 +56,7 @@ const UserSchema = new Schema({
         })
     },
     locations: {
-        type: [LocationSchema],
-        required: true
+        type: [LocationSchema]
     }
 });
 
@@ -111,7 +110,7 @@ const validateUser = (user) => {
         firstName: Joi.string().min(3).max(255).required(),
         lastName: Joi.string().min(3).max(255).required(),
         companyId: Joi.objectId().required(),
-        locations: Joi.array().items(Joi.objectId().required()).min(1)
+        locations: Joi.array().items(Joi.objectId())
     };
 
     return Joi.validate(user, mainInput);

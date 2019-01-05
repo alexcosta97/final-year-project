@@ -15,7 +15,7 @@ const products = require('./routes/products');
 const subcategories = require('./routes/subcategories');
 const suppliers = require('./routes/suppliers');
 const templates = require('./routes/templates');
-//const users = require('./routes/users');
+const users = require('./routes/users');
 const {authMiddleware} = require('./services/tokenAuth');
 
 //Initialize express app
@@ -52,7 +52,7 @@ app.use('/api/products', authMiddleware, products);
 app.use('/api/subcategories', authMiddleware, subcategories);
 app.use('/api/suppliers', authMiddleware, suppliers);
 app.use('/api/templates', templates);
-//app.use('/api/users', users);
+app.use('/api/users', users);
 
 //PORT
 const port = process.env.PORT || 3000;

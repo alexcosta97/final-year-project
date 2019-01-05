@@ -6,10 +6,12 @@ const mongoose = require('mongoose');
 const config = require('config');
 const {Product} = require('../models/product.model');
 const {Supplier} = require('../models/supplier.model');
+const {User} = require('../models/user.model');
 
 let product;
 let input;
 let supplier;
+let token;
 
 describe('Product controller', () => {
     before((done) => {
@@ -41,7 +43,24 @@ describe('Product controller', () => {
                         }
                     });
                     product.save((err, product) => {
-                        done();
+                        let user = new User({
+                            email: 'test@mail.com',
+                            password: 'Password',
+                            firstName: 'Name',
+                            lastName: 'Surname',
+                            company: {
+                                name: 'Company'
+                            },
+                            locations: [
+                                {
+                                    name: 'Location'
+                                }
+                            ]
+                        });
+                        user.save((err, user) => {
+                            token = user.generateAuthToken();
+                            done();
+                        });
                     });
                 });
             });
@@ -53,6 +72,7 @@ describe('Product controller', () => {
             chai.request(app)
             .get('/api/products/')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -68,6 +88,7 @@ describe('Product controller', () => {
             chai.request(app)
             .get(`/api/products/${product._id}`)
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -82,6 +103,7 @@ describe('Product controller', () => {
             chai.request(app)
             .get('/api/products/fakeID')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -95,6 +117,7 @@ describe('Product controller', () => {
             chai.request(app)
             .get('/api/products/507f1f77bcf86cd799439011')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;
@@ -110,6 +133,7 @@ describe('Product controller', () => {
         it('should send back the newly created product if given the right input', (done) => {
             chai.request(app)
             .post('/api/products/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(200);
@@ -124,6 +148,7 @@ describe('Product controller', () => {
             input.name = 'bl';
             chai.request(app)
             .post('/api/products/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -140,6 +165,7 @@ describe('Product controller', () => {
             input.name = 'ProdTest'
             chai.request(app)
             .put(`/api/products/${product._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then((res => {
                 expect(res).to.have.status(200);
@@ -155,6 +181,7 @@ describe('Product controller', () => {
             input.name = 'bl';
             chai.request(app)
             .put(`/api/products/${product._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -169,6 +196,7 @@ describe('Product controller', () => {
             input.name = 'Product';
             chai.request(app)
             .put('/api/products/FakeID')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(418);
@@ -182,6 +210,7 @@ describe('Product controller', () => {
         it(`should send an error message if the product doesn't exist`, (done) => {
             chai.request(app)
             .put('/api/products/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(404);
@@ -197,6 +226,7 @@ describe('Product controller', () => {
         it('should delete the product with the given id and send a success message', (done) => {
             chai.request(app)
             .del(`/api/products/${product._id}`)
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -209,6 +239,7 @@ describe('Product controller', () => {
         it(`should send an error message if the given id is invalid`, (done) => {
             chai.request(app)
             .del('/api/products/fakeID')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -221,6 +252,7 @@ describe('Product controller', () => {
         it(`should send a 404 status code and error message if the product with the given ID doesn't exist`, (done) => {
             chai.request(app)
             .del('/api/products/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;

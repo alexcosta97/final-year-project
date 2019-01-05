@@ -7,11 +7,13 @@ const config = require('config');
 const {Subcategory} = require('../models/subcategory.model');
 const {Product} = require('../models/product.model');
 const {Category} = require('../models/category.model');
+const {User} = require('../models/user.model');
 
 let subcategory;
 let input;
 let product;
 let category;
+let token;
 
 describe('Subcategory controller', () => {
     before((done) => {
@@ -60,7 +62,24 @@ describe('Subcategory controller', () => {
                             ]
                         });
                         subcategory.save((err, subcategory) => {
-                            done();
+                            let user = new User({
+                                email: 'test@mail.com',
+                                password: 'Password',
+                                firstName: 'Name',
+                                lastName: 'Surname',
+                                company: {
+                                    name: 'Company'
+                                },
+                                locations: [
+                                    {
+                                        name: 'Location'
+                                    }
+                                ]
+                            });
+                            user.save((err, user) => {
+                                token = user.generateAuthToken();
+                                done();
+                            });
                         });
                     });
                 });
@@ -73,6 +92,7 @@ describe('Subcategory controller', () => {
             chai.request(app)
             .get('/api/subcategories/')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -88,6 +108,7 @@ describe('Subcategory controller', () => {
             chai.request(app)
             .get(`/api/subcategories/${subcategory._id}`)
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -102,6 +123,7 @@ describe('Subcategory controller', () => {
             chai.request(app)
             .get('/api/subcategories/fakeID')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -115,6 +137,7 @@ describe('Subcategory controller', () => {
             chai.request(app)
             .get('/api/subcategories/507f1f77bcf86cd799439011')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;
@@ -130,6 +153,7 @@ describe('Subcategory controller', () => {
         it('should send back the newly created subcategory if given the right input', (done) => {
             chai.request(app)
             .post('/api/subcategories/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(200);
@@ -144,6 +168,7 @@ describe('Subcategory controller', () => {
             input.name = 'bl';
             chai.request(app)
             .post('/api/subcategories/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -160,6 +185,7 @@ describe('Subcategory controller', () => {
             input.name = 'SubCatTest'
             chai.request(app)
             .put(`/api/subcategories/${subcategory._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then((res => {
                 expect(res).to.have.status(200);
@@ -175,6 +201,7 @@ describe('Subcategory controller', () => {
             input.name = 'bl';
             chai.request(app)
             .put(`/api/subcategories/${subcategory._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -189,6 +216,7 @@ describe('Subcategory controller', () => {
             input.name = 'Subcategory';
             chai.request(app)
             .put('/api/subcategories/FakeID')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(418);
@@ -202,6 +230,7 @@ describe('Subcategory controller', () => {
         it(`should send an error message if the subcategory doesn't exist`, (done) => {
             chai.request(app)
             .put('/api/subcategories/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(404);
@@ -217,6 +246,7 @@ describe('Subcategory controller', () => {
         it('should delete the subcategory with the given id and send a success message', (done) => {
             chai.request(app)
             .del(`/api/subcategories/${subcategory._id}`)
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -229,6 +259,7 @@ describe('Subcategory controller', () => {
         it(`should send an error message if the given id is invalid`, (done) => {
             chai.request(app)
             .del('/api/subcategories/fakeID')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -241,6 +272,7 @@ describe('Subcategory controller', () => {
         it(`should send a 404 status code and error message if the subcategory with the given ID doesn't exist`, (done) => {
             chai.request(app)
             .del('/api/subcategories/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;

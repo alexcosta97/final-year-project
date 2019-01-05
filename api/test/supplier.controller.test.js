@@ -5,15 +5,17 @@ const expect = chai.expect;
 const mongoose = require('mongoose');
 const config = require('config');
 const {Supplier} = require('../models/supplier.model');
+const {User} = require('../models/user.model');
 
 let supplier;
 let input;
+let token;
 
 describe('Supplier Controller', () => {
     before((done) => {
         mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});
         mongoose.connection.once('open', () => {
-            mongoose.connection.collections.suppliers.drop(() => {
+            mongoose.connection.dropDatabase(() => {
                 input = {
                     name: 'SupplierCo',
                     phone: '12345',
@@ -21,7 +23,24 @@ describe('Supplier Controller', () => {
                 };
                 supplier = new Supplier(input);
                 supplier.save((err, supplier) => {
-                    done();
+                    let user = new User({
+                        email: 'test@mail.com',
+                        password: 'Password',
+                        firstName: 'Name',
+                        lastName: 'Surname',
+                        company: {
+                            name: 'Company'
+                        },
+                        locations: [
+                            {
+                                name: 'Location'
+                            }
+                        ]
+                    });
+                    user.save((err, user) => {
+                        token = user.generateAuthToken();
+                        done();
+                    });
                 });
             });
         });
@@ -31,6 +50,7 @@ describe('Supplier Controller', () => {
         it('should send an array with all the suppliers in the database', (done) => {
             chai.request(app)
             .get('/api/suppliers/')
+            .set('x-auth-token', token)
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(200);
@@ -50,6 +70,7 @@ describe('Supplier Controller', () => {
             chai.request(app)
             .get(`/api/suppliers/${supplier._id}`)
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -66,6 +87,7 @@ describe('Supplier Controller', () => {
             chai.request(app)
             .get('/api/suppliers/fakeID')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -79,6 +101,7 @@ describe('Supplier Controller', () => {
             chai.request(app)
             .get('/api/suppliers/507f1f77bcf86cd799439011')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;
@@ -94,6 +117,7 @@ describe('Supplier Controller', () => {
         it('should send back the newly created suppllier if given the right input', (done) => {
             chai.request(app)
             .post('/api/suppliers/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(200);
@@ -110,6 +134,7 @@ describe('Supplier Controller', () => {
             input.email = 'mail';
             chai.request(app)
             .post('/api/suppliers/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -126,6 +151,7 @@ describe('Supplier Controller', () => {
             input.email = 'mail@supplierco.com';
             chai.request(app)
             .put(`/api/suppliers/${supplier._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then((res => {
                 expect(res).to.have.status(200);
@@ -141,6 +167,7 @@ describe('Supplier Controller', () => {
             input.email = 'mail';
             chai.request(app)
             .put(`/api/suppliers/${supplier._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -155,6 +182,7 @@ describe('Supplier Controller', () => {
             input.email = 'mail@testco.com';
             chai.request(app)
             .put('/api/suppliers/FakeID')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(418);
@@ -168,6 +196,7 @@ describe('Supplier Controller', () => {
         it(`should send an error message if the supplier doesn't exist`, (done) => {
             chai.request(app)
             .put('/api/suppliers/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(404);
@@ -183,6 +212,7 @@ describe('Supplier Controller', () => {
         it('should delete the supplier with the given id and send a success message', (done) => {
             chai.request(app)
             .del(`/api/suppliers/${supplier._id}`)
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -195,6 +225,7 @@ describe('Supplier Controller', () => {
         it(`should send an error message if the given id is invalid`, (done) => {
             chai.request(app)
             .del('/api/suppliers/fakeID')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -207,6 +238,7 @@ describe('Supplier Controller', () => {
         it(`should send a 404 status code and error message if the supplier with the given ID doesn't exist`, (done) => {
             chai.request(app)
             .del('/api/suppliers/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;

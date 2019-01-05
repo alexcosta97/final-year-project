@@ -7,11 +7,13 @@ const config = require('config');
 const {Template} = require('../models/template.model');
 const {Location} = require('../models/location.model');
 const {Subcategory} = require('../models/subcategory.model');
+const {User} = require('../models/user.model');
 
 let template;
 let input;
 let location;
 let subcategory;
+let token;
 
 describe('Template controller', () => {
     before((done) => {
@@ -79,7 +81,24 @@ describe('Template controller', () => {
                         });
                         template.save((err, template) => {
                             if(err) console.log(err.message);
-                            done();
+                            let user = new User({
+                                email: 'test@mail.com',
+                                password: 'Password',
+                                firstName: 'Name',
+                                lastName: 'Surname',
+                                company: {
+                                    name: 'Company'
+                                },
+                                locations: [
+                                    {
+                                        name: 'Location'
+                                    }
+                                ]
+                            });
+                            user.save((err, user) => {
+                                token = user.generateAuthToken();
+                                done();
+                            });
                         });
                     });
                 });
@@ -92,6 +111,7 @@ describe('Template controller', () => {
             chai.request(app)
             .get('/api/templates/')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -106,6 +126,7 @@ describe('Template controller', () => {
         it('should send an object with the same properties as the ones of the template with the given id', (done) => {
             chai.request(app)
             .get(`/api/templates/${template._id}`)
+            .set('x-auth-token', token)
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(200);
@@ -120,6 +141,7 @@ describe('Template controller', () => {
         it(`should send an easter egg if the given id isn't in the valid format`, (done) => {
             chai.request(app)
             .get('/api/templates/fakeID')
+            .set('x-auth-token', token)
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(418);
@@ -133,6 +155,7 @@ describe('Template controller', () => {
         it(`should send a 404 status code and an error message if there is no template with the given ID`, (done) => {
             chai.request(app)
             .get('/api/templates/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(404);
@@ -149,6 +172,7 @@ describe('Template controller', () => {
         it('should send back the newly created template if given the right input', (done) => {
             chai.request(app)
             .post('/api/templates/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(200);
@@ -163,6 +187,7 @@ describe('Template controller', () => {
             input.name = 'bl';
             chai.request(app)
             .post('/api/templates/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -179,6 +204,7 @@ describe('Template controller', () => {
             input.name = 'TempTest'
             chai.request(app)
             .put(`/api/templates/${template._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then((res => {
                 expect(res).to.have.status(200);
@@ -194,6 +220,7 @@ describe('Template controller', () => {
             input.name = 'bl';
             chai.request(app)
             .put(`/api/templates/${template._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -208,6 +235,7 @@ describe('Template controller', () => {
             input.name = 'Template';
             chai.request(app)
             .put('/api/templates/FakeID')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(418);
@@ -221,6 +249,7 @@ describe('Template controller', () => {
         it(`should send an error message if the template doesn't exist`, (done) => {
             chai.request(app)
             .put('/api/templates/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(404);
@@ -236,6 +265,7 @@ describe('Template controller', () => {
         it('should delete the template with the given id and send a success message', (done) => {
             chai.request(app)
             .del(`/api/templates/${template._id}`)
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -248,6 +278,7 @@ describe('Template controller', () => {
         it(`should send an error message if the given id is invalid`, (done) => {
             chai.request(app)
             .del('/api/templates/fakeID')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -260,6 +291,7 @@ describe('Template controller', () => {
         it(`should send a 404 status code and error message if the template with the given ID doesn't exist`, (done) => {
             chai.request(app)
             .del('/api/templates/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;

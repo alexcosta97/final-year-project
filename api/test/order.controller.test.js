@@ -8,12 +8,14 @@ const {Order} = require('../models/order.model');
 const {Location} = require('../models/location.model');
 const {Supplier} = require('../models/supplier.model');
 const {Product} = require('../models/product.model');
+const {User} = require('../models/user.model');
 
 let order;
 let input;
 let location;
 let supplier;
 let product;
+let token;
 
 describe('Order controller', () => {
     beforeEach((done) => {
@@ -87,7 +89,24 @@ describe('Order controller', () => {
                                 ]
                             });
                             order.save((err, order) => {
-                                done();
+                                let user = new User({
+                                    email: 'test@mail.com',
+                                    password: 'Password',
+                                    firstName: 'Name',
+                                    lastName: 'Surname',
+                                    company: {
+                                        name: 'Company'
+                                    },
+                                    locations: [
+                                        {
+                                            name: 'Location'
+                                        }
+                                    ]
+                                });
+                                user.save((err, user) => {
+                                    token = user.generateAuthToken();
+                                    done();
+                                });
                             });
                         });
                     });
@@ -101,6 +120,7 @@ describe('Order controller', () => {
             chai.request(app)
             .get('/api/orders/')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -116,6 +136,7 @@ describe('Order controller', () => {
             chai.request(app)
             .get(`/api/orders/${order._id}`)
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -130,6 +151,7 @@ describe('Order controller', () => {
             chai.request(app)
             .get('/api/orders/fakeID')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -142,6 +164,7 @@ describe('Order controller', () => {
         it(`should send a 404 status code and an error message if there is no order with the given ID`, (done) => {
             chai.request(app)
             .get('/api/orders/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(404);
@@ -158,6 +181,7 @@ describe('Order controller', () => {
         it('should send back the newly created order if given the right input', (done) => {
             chai.request(app)
             .post('/api/orders/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(200);
@@ -172,6 +196,7 @@ describe('Order controller', () => {
             input.location = 'bla';
             chai.request(app)
             .post('/api/orders/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -187,6 +212,7 @@ describe('Order controller', () => {
         it(`should update the order with the given id`, (done) => {
             chai.request(app)
             .put(`/api/orders/${order._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then((res => {
                 expect(res).to.have.status(200);
@@ -202,6 +228,7 @@ describe('Order controller', () => {
             input.locationId = 'bl';
             chai.request(app)
             .put(`/api/orders/${order._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -216,6 +243,7 @@ describe('Order controller', () => {
             input.locationId = location._id;
             chai.request(app)
             .put('/api/orders/FakeID')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(418);
@@ -229,6 +257,7 @@ describe('Order controller', () => {
         it(`should send an error message if the order doesn't exist`, (done) => {
             chai.request(app)
             .put('/api/orders/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(404);
@@ -244,6 +273,7 @@ describe('Order controller', () => {
         it('should delete the order with the given id and send a success message', (done) => {
             chai.request(app)
             .del(`/api/orders/${order._id}`)
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -256,6 +286,7 @@ describe('Order controller', () => {
         it(`should send an error message if the given id is invalid`, (done) => {
             chai.request(app)
             .del('/api/orders/fakeID')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -268,6 +299,7 @@ describe('Order controller', () => {
         it(`should send a 404 status code and error message if the order with the given ID doesn't exist`, (done) => {
             chai.request(app)
             .del('/api/orders/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;

@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const config = require('config');
 const bodyParser = require('body-parser');
 
-//Require api routers
+//Require api routers and custom middleware
 const categories = require('./routes/categories');
 const companies = require('./routes/companies');
 const locations = require('./routes/locations');
@@ -16,6 +16,7 @@ const subcategories = require('./routes/subcategories');
 const suppliers = require('./routes/suppliers');
 const templates = require('./routes/templates');
 //const users = require('./routes/users');
+const {authMiddleware} = require('./services/tokenAuth');
 
 //Initialize express app
 const app = express();
@@ -43,13 +44,13 @@ app.use(bodyParser.json({ type: 'application/json'}));
 app.use(helmet());
 
 //Hooking up api routers
-app.use('/api/categories', categories);
+app.use('/api/categories', authMiddleware, categories);
 app.use('/api/companies', companies);
-app.use('/api/locations', locations);
-app.use('/api/orders', orders);
-app.use('/api/products', products);
-app.use('/api/subcategories', subcategories);
-app.use('/api/suppliers', suppliers);
+app.use('/api/locations', authMiddleware, locations);
+app.use('/api/orders', authMiddleware, orders);
+app.use('/api/products', authMiddleware, products);
+app.use('/api/subcategories', authMiddleware, subcategories);
+app.use('/api/suppliers', authMiddleware, suppliers);
 app.use('/api/templates', templates);
 //app.use('/api/users', users);
 

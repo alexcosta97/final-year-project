@@ -112,6 +112,9 @@ const update = async (req, res) => {
     }
 
     if(!user) return res.status(404).json({message: 'There was no user with the given ID.'});
+
+    if(req.user.id === user._id.toString()) res.set('x-auth-token', user.generateAuthToken());
+
     res.json({message: 'The operation was successful.'});
 };
 

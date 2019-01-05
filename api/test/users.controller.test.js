@@ -147,7 +147,7 @@ describe('Users Controller', () => {
     });
 
     describe('PUT Method', () => {
-        it(`should update the user with the given id`, (done) => {
+        it(`should update the user with the given id and send a new token if the user being updated is the logged in user`, (done) => {
             input.email = 'test3@testco.com';
             chai.request(app)
             .put(`/api/users/${user._id}`)
@@ -156,6 +156,7 @@ describe('Users Controller', () => {
             .then((res => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
+                expect(res).to.have.header('x-auth-token');
                 expect(res.body).to.be.an('object');
                 expect(res.body).to.have.property('message', 'The operation was successful.');
                 done();

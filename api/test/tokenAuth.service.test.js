@@ -20,50 +20,23 @@ describe('Token Authentication', () => {
         mongoose.connection.once('open', () => {
             //Resets the database before creating the new model objects
             mongoose.connection.dropDatabase((err) => {
-                company = new Company({
-                    name: 'TestCo',
-                    email: 'testco@test.com',
-                    phone: '12345'
-                });
-                company.save((err, company) => {
-                    location = new Location({
-                        name: 'Location',
-                        phone: '12345',
-                        company: {
-                            _id: company._id,
-                            name: company.name
-                        },
-                        email: 'mail@testco.com',
-                        address: {
-                            houseNumber: '1',
-                            street: 'Street',
-                            town: 'Town',
-                            postCode: 'PC1',
-                            country: 'Country'
+                user = new User({
+                    email: 'test@mail.com',
+                    password: 'Password',
+                    firstName: 'Name',
+                    lastName: 'Surname',
+                    company: {
+                        name: 'Company'
+                    },
+                    locations: [
+                        {
+                            name: 'Location'
                         }
-                    });
-                    location.save((err, location) => {
-                        user = new User({
-                            email: 'test@mail.com',
-                            password: 'Password',
-                            firstName: 'Name',
-                            lastName: 'Surname',
-                            company: {
-                                _id: company._id,
-                                name: company.name
-                            },
-                            locations: [
-                                {
-                                    _id: location._id,
-                                    name: location.name
-                                }
-                            ]
-                        });
-                        user.save((err, user) => {
-                            token = user.generateAuthToken();
-                            done();
-                        });
-                    });
+                    ]
+                });
+                user.save((err, user) => {
+                    token = user.generateAuthToken();
+                    done();
                 });
             });
         });

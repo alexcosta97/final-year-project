@@ -4,6 +4,7 @@ const {Company} = require('../models/company.model');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const config = require('config');
+const bcrypt = require('bcrypt');
 
 let user;
 let input;
@@ -102,10 +103,10 @@ describe('Users Model', () => {
 
     describe('Save', () => {
         it(`should save a user`, (done) => {
-            user.save((err, user) => {
+            user.save(function(err, userDB) {
                 expect(err).to.not.exist;
-                expect(user).to.exist;
-                expect(user).to.not.be.null;
+                expect(userDB).to.exist;
+                expect(userDB).to.not.be.null;
                 done();
             });
         });
@@ -164,6 +165,23 @@ describe('Users Model', () => {
                 expect(err).to.not.exist;
                 expect(user).to.exist;
                 expect(user).to.not.be.null;
+                done();
+            });
+        });
+    });
+
+    describe('Hash Password', () => {
+        it('should generate an hash using 10 rounds', () => {
+            const rounds = bcrypt.getRounds(user.password);
+            expect(rounds).to.be.equal(10);
+        });
+
+        it('should generate a hash that can be validated against the original password', (done) => {
+            //Using the input password used when saving the user to compare hashes
+            bcrypt.compare('Password', user.password, (err, res) => {
+                expect(err).to.not.exist;
+                expect(res).to.exist;
+                expect(res).to.be.true;
                 done();
             });
         });

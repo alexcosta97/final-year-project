@@ -1,7 +1,9 @@
 const {User, validate} = require('../models/user.model');
 const {Location} = require('../models/location.model');
 const {Company} = require('../models/company.model');
-const expect = require('chai').expect;
+const chai = require('chai');
+chai.use(require('chai-jwt'));
+const expect = chai.expect;
 const mongoose = require('mongoose');
 const config = require('config');
 const bcrypt = require('bcrypt');
@@ -186,4 +188,12 @@ describe('Users Model', () => {
             });
         });
     });
+
+    describe('Generate Auth Token', () => {
+        it('should generate a token with the user id', () => {
+            const token = user.generateAuthToken();
+            expect(token).to.be.a.jwt.and.have.claim('id');
+        });
+    });
+
 });

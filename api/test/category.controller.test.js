@@ -6,10 +6,12 @@ const mongoose = require('mongoose');
 const config = require('config');
 const {Category} = require('../models/category.model');
 const {Company} = require('../models/company.model');
+const {User} = require('../models/user.model');
 
 let category;
 let input;
 let company;
+let token;
 
 describe('Category controller', () => {
     before((done) => {
@@ -35,7 +37,21 @@ describe('Category controller', () => {
                         }
                     });
                     category.save((err, category) => {
-                        done();
+                        let user = new User({
+                            email: 'test@mail.com',
+                            password: 'Password',
+                            firstName: 'Name',
+                            lastName: 'Surname',
+                            company: {
+                                _id: company._id,
+                                name: company.name
+                            },
+                            locations: [{name: 'Location'}]
+                        });
+                        user.save((err, user) => {
+                            token = user.generateAuthToken();
+                            done();
+                        });
                     });
                 });
             });
@@ -46,6 +62,7 @@ describe('Category controller', () => {
         it('should send an array with all the categories in the database', (done) => {
             chai.request(app)
             .get('/api/categories/')
+            .set('x-auth-token', token)
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(200);
@@ -61,6 +78,7 @@ describe('Category controller', () => {
         it('should send an object with the same properties as the ones of the category with the given id', (done) => {
             chai.request(app)
             .get(`/api/categories/${category._id}`)
+            .set('x-auth-token', token)
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(200);
@@ -75,6 +93,7 @@ describe('Category controller', () => {
         it(`should send an easter egg if the given id isn't in the valid format`, (done) => {
             chai.request(app)
             .get('/api/categories/fakeID')
+            .set('x-auth-token', token)
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(418);
@@ -88,6 +107,7 @@ describe('Category controller', () => {
         it(`should send a 404 status code and an error message if there is no category with the given ID`, (done) => {
             chai.request(app)
             .get('/api/categories/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(404);
@@ -104,6 +124,7 @@ describe('Category controller', () => {
         it('should send back the newly created category if given the right input', (done) => {
             chai.request(app)
             .post('/api/categories/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(200);
@@ -118,6 +139,7 @@ describe('Category controller', () => {
             input.name = 'bla';
             chai.request(app)
             .post('/api/categories/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -134,6 +156,7 @@ describe('Category controller', () => {
             input.name = 'CategoryTest'
             chai.request(app)
             .put(`/api/categories/${category._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then((res => {
                 expect(res).to.have.status(200);
@@ -149,6 +172,7 @@ describe('Category controller', () => {
             input.name = 'bla';
             chai.request(app)
             .put(`/api/categories/${category._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -163,6 +187,7 @@ describe('Category controller', () => {
             input.name = 'Category';
             chai.request(app)
             .put('/api/categories/FakeID')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(418);
@@ -176,6 +201,7 @@ describe('Category controller', () => {
         it(`should send an error message if the category doesn't exist`, (done) => {
             chai.request(app)
             .put('/api/categories/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(404);
@@ -191,6 +217,7 @@ describe('Category controller', () => {
         it('should delete the category with the given id and send a success message', (done) => {
             chai.request(app)
             .del(`/api/categories/${category._id}`)
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -203,6 +230,7 @@ describe('Category controller', () => {
         it(`should send an error message if the given id is invalid`, (done) => {
             chai.request(app)
             .del('/api/categories/fakeID')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -215,6 +243,7 @@ describe('Category controller', () => {
         it(`should send a 404 status code and error message if the category with the given ID doesn't exist`, (done) => {
             chai.request(app)
             .del('/api/categories/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;

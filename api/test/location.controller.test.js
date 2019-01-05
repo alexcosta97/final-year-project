@@ -6,10 +6,12 @@ const mongoose = require('mongoose');
 const config = require('config');
 const {Location, validate} = require('../models/location.model');
 const {Company} = require('../models/company.model');
+const {User} = require('../models/user.model');
 
 let location;
 let input;
 let company;
+let token;
 
 describe('Location controller', () => {
     before((done) => {
@@ -57,7 +59,24 @@ describe('Location controller', () => {
                         }
                     });
                     location.save((err, location) => {
-                        done();
+                        let user = new User({
+                            email: 'test@mail.com',
+                            password: 'Password',
+                            firstName: 'Name',
+                            lastName: 'Surname',
+                            company: {
+                                name: 'Company'
+                            },
+                            locations: [
+                                {
+                                    name: 'Location'
+                                }
+                            ]
+                        });
+                        user.save((err, user) => {
+                            token = user.generateAuthToken();
+                            done();
+                        });
                     });
                 });
             });
@@ -68,6 +87,7 @@ describe('Location controller', () => {
         it('should send an array with all the locations in the database', (done) => {
             chai.request(app)
             .get('/api/locations/')
+            .set('x-auth-token', token)
             .set('Accept', 'application/json')
             .end((err, res) => {
                 expect(res).to.have.status(200);
@@ -84,6 +104,7 @@ describe('Location controller', () => {
             chai.request(app)
             .get(`/api/locations/${location._id}`)
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -100,6 +121,7 @@ describe('Location controller', () => {
             chai.request(app)
             .get('/api/locations/fakeID')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -113,6 +135,7 @@ describe('Location controller', () => {
             chai.request(app)
             .get('/api/locations/507f1f77bcf86cd799439011')
             .set('Accept', 'application/json')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;
@@ -128,6 +151,7 @@ describe('Location controller', () => {
         it('should send back the newly created location if given the right input', (done) => {
             chai.request(app)
             .post('/api/locations/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(200);
@@ -144,6 +168,7 @@ describe('Location controller', () => {
             input.email = 'mail';
             chai.request(app)
             .post('/api/locations/')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -160,6 +185,7 @@ describe('Location controller', () => {
             input.email = 'mail@supplierco.com';
             chai.request(app)
             .put(`/api/locations/${location._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then((res => {
                 expect(res).to.have.status(200);
@@ -175,6 +201,7 @@ describe('Location controller', () => {
             input.email = 'mail';
             chai.request(app)
             .put(`/api/locations/${location._id}`)
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(400);
@@ -189,6 +216,7 @@ describe('Location controller', () => {
             input.email = 'mail@testco.com';
             chai.request(app)
             .put('/api/locations/FakeID')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(418);
@@ -202,6 +230,7 @@ describe('Location controller', () => {
         it(`should send an error message if the location doesn't exist`, (done) => {
             chai.request(app)
             .put('/api/locations/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .send(input)
             .then(res => {
                 expect(res).to.have.status(404);
@@ -217,6 +246,7 @@ describe('Location controller', () => {
         it('should delete the location with the given id and send a success message', (done) => {
             chai.request(app)
             .del(`/api/locations/${location._id}`)
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
@@ -229,6 +259,7 @@ describe('Location controller', () => {
         it(`should send an error message if the given id is invalid`, (done) => {
             chai.request(app)
             .del('/api/locations/fakeID')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(418);
                 expect(res).to.be.json;
@@ -241,6 +272,7 @@ describe('Location controller', () => {
         it(`should send a 404 status code and error message if the location with the given ID doesn't exist`, (done) => {
             chai.request(app)
             .del('/api/locations/507f1f77bcf86cd799439011')
+            .set('x-auth-token', token)
             .end((err, res) => {
                 expect(res).to.have.status(404);
                 expect(res).to.be.json;

@@ -64,7 +64,6 @@ const UserSchema = new Schema({
 // Method that automatically hashes passwords before saving
 UserSchema.pre('save', async function(next){
     if(this.password){
-        console.log(this.password);
         this.password = await this.hashPassword(this.password);
     }
     next();

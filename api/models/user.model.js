@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const Joi = require('../config/joi');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const Roles = require('../services/roles');
 
 // Add enum for user roles
 
@@ -57,6 +58,11 @@ const UserSchema = new Schema({
     },
     locations: {
         type: [LocationSchema]
+    },
+    role: {
+        type: String,
+        required: true,
+        default: 'User'
     }
 });
 
@@ -95,7 +101,11 @@ UserSchema.methods.hashPassword = async function(password){
 };
 
 UserSchema.methods.generateAuthToken = function() {
-    return jwt.sign({id: this._id}, config.get('jwtPrivateKey'));
+    let locations = [];
+    for(i = 0; i < this.locations.length; i++){
+        locations.push(this.locations[i]._id);
+    }
+    return jwt.sign({sub: this._id, role: this.role, company: this.company._id, locations: locations}, config.get('jwtPrivateKey'));
 };
 
 const User = mongoose.model('User', UserSchema);
@@ -110,7 +120,8 @@ const validateUser = (user) => {
         firstName: Joi.string().min(3).max(255).required(),
         lastName: Joi.string().min(3).max(255).required(),
         companyId: Joi.objectId().required(),
-        locations: Joi.array().items(Joi.objectId())
+        locations: Joi.array().items(Joi.objectId()),
+        role: Joi.string().valid(Roles.Admin, Roles.User).required()
     };
 
     return Joi.validate(user, mainInput);

@@ -32,7 +32,13 @@ const validateCompany = (company) => {
     const schema = {
         name: Joi.string().min(5).max(255).required(),
         email: Joi.string().min(10).max(255).required().email(),
-        phone: Joi.string().min(5).max(50).required()
+        phone: Joi.string().min(5).max(50).required(),
+        houseNumber: Joi.string().min(1).max(20).required(),
+        street: Joi.string().min(3).max(255).required(),
+        town: Joi.string().min(3).max(255).required(),
+        postCode: Joi.string().min(2).max(20).required(),
+        county: Joi.string().min(3).max(255),
+        country: Joi.string().min(3).max(255).required()
     }
 
     return Joi.validate(company, schema);

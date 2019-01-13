@@ -21,4 +21,4 @@ const decoder = (token) => {
     }
 };
 
-exports.decoder = decoder;
+exports.decoder = decoder; //Exported for testing purposes

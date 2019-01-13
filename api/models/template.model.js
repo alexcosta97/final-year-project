@@ -18,13 +18,8 @@ const SubcategorySchema = new Schema({
     name: {
         type: String,
         required: true
-    },
-    //Only getting the name of the category that the subcategory belongs to
-    category: {
-        type: String,
-        required: true
     }
-})
+});
 
 const TemplateSchema = new Schema({
     name:{
@@ -33,8 +28,17 @@ const TemplateSchema = new Schema({
         minlength: 5,
         maxlength: 255
     },
-    locations:{
-        type: [LocationSchema],
+    location:{
+        type: LocationSchema,
+        required: true
+    },
+    company:{
+        type: new Schema({
+            name:{
+                type: String,
+                required: true
+            }
+        }),
         required: true
     },
     subcategories:{

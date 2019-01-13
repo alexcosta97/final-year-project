@@ -1,11 +1,13 @@
 const {Subcategory, validate} = require('../models/subcategory.model');
 const {Product} = require('../models/product.model');
 const {Category} = require('../models/category.model');
+const {Company} = require('../models/company.model');
 
 const readAll = async (req, res) => {
     let subcategories;
     try{
-        subcategories = await Subcategory.find({}).sort('name').exec();
+        //When reading all, the list of categories returned is limited to the ones that belong to the company that the user works for
+        subcategories = await Subcategory.find({'company._id': req.user.company}).sort('name').exec();
     }
     catch(err){
         return res.status(409).json({message: 'There was an issue processing your request'});
@@ -17,7 +19,8 @@ const readAll = async (req, res) => {
 const read = async (req, res) => {
     let subcategory;
     try{
-        subcategory = await Subcategory.findOne({_id: req.params.id}).exec();
+        //When reading a single subcategory, the result is limited not only to the id of the subcategory but also to the company that the user works for to ensure that the user is only accessing data that they have access for
+        subcategory = await Subcategory.findOne({_id: req.params.id, 'company._id': req.user.company}).exec();
     } catch(err){
         return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
     }
@@ -59,11 +62,24 @@ const create = async (req, res) => {
     }
     if(!category) return res.status(400).json({message: 'Invalid Category'});
 
+    //Setting the company for the subcategory automatically based on the user's company
+    let company;
+    try{
+        company = await Company.findOne({_id: req.user.company.toString()});
+    } catch(err){
+        return res.status(400).json({message: `Invalid Company`});
+    }
+    if(!company) return res.status(400).json({message: `Invalid Company`});
+
     let subcategory = new Subcategory({
         name: req.body.name,
         category: {
             _id: category._id,
             name: category.name
+        },
+        company: {
+            _id: company._id,
+            name: company.name
         },
         products: products
     });
@@ -101,12 +117,26 @@ const update = async (req, res) => {
     }
     if(!category) return res.status(400).json({message: 'Invalid Category'});
 
+    //Setting the company for the subcategory automatically based on the user's company
+    let company;
     try{
-        subcategory = await Subcategory.findOneAndUpdate({_id: req.params.id}, {
+        company = await Company.findOne({_id: req.user.company});
+    } catch(err){
+        return res.status(400).json({message: `Invalid Company`});
+    }
+    if(!company) return res.status(400).json({message: `Invalid Company`});
+
+    try{
+        //Using the user's company to ensure that the user is accessing the right data
+        subcategory = await Subcategory.findOneAndUpdate({_id: req.params.id, 'company._id': req.user.company}, {
             name: req.body.name,
             category: {
                 _id: category._id,
                 name: category.name
+            },
+            company: {
+                _id: company._id,
+                name: company.name
             },
             products: products
         }, {new: false}).exec();
@@ -128,7 +158,8 @@ const update = async (req, res) => {
 const del = async (req, res) => {
     let subcategory;
     try{
-        subcategory = await Subcategory.findOneAndDelete({_id: req.params.id}).exec();
+        // Using the user's company to make sure that the user is accessing the right data
+        subcategory = await Subcategory.findOneAndDelete({_id: req.params.id, 'company._id': req.user.company}).exec();
     }
     catch(err){
         return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});

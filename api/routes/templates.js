@@ -1,10 +1,12 @@
 const router = require('express').Router();
 const templates = require('../controllers/template.controller');
+const authorize = require('../services/authorize');
+const Roles = require('../services/roles');
 
-router.get('/', templates.readAll);
-router.get('/:id', templates.read);
-router.post('/', templates.create);
-router.put('/:id', templates.update);
-router.delete('/:id', templates.del);
+router.get('/', authorize(), templates.readAll);
+router.get('/:id', authorize(), templates.read);
+router.post('/', authorize(Roles.Admin), templates.create);
+router.put('/:id', authorize(Roles.Admin), templates.update);
+router.delete('/:id', authorize(Roles.Admin), templates.del);
 
 module.exports = router;

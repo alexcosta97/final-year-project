@@ -5,11 +5,18 @@ const expect = chai.expect;
 const mongoose = require('mongoose');
 const config = require('config');
 const {Company} = require('../models/company.model');
+const {Location} = require('../models/location.model');
+const {Supplier} = require('../models/supplier.model');
+const {Category} = require('../models/category.model');
+const {Product} = require('../models/product.model');
+const {Subcategory} = require('../models/subcategory.model');
+const {Template} = require('../models/template.model');
+const {Order} = require('../models/order.model');
 const {User} = require('../models/user.model');
 
-let company;
-let user;
+let company, location, supplier, category, product, subcategory, template, order, user;
 let token;
+let input;
 
 describe('Company Controller', () => {
     before((done) => {
@@ -17,25 +24,144 @@ describe('Company Controller', () => {
         mongoose.connection.once('open', () => {
             mongoose.connection.dropDatabase(() => {
                 company = new Company({
-                    name: 'TestCo',
-                    email: 'mail@testco.com',
+                    name: 'Company',
+                    email: 'company@testco.com',
                     phone: '12345'
                 });
                 company.save((err, company) => {
-                    user = new User({
-                        email: 'test@mail.com',
-                        password: 'Password',
-                        firstName: 'Name',
-                        lastName: 'Surname',
+                    location = new Location({
+                        name: 'Head Office',
+                        phone: company.phone,
                         company: {
                             _id: company._id,
                             name: company.name
                         },
-                        locations: [{name: 'Location'}]
+                        address: {
+                            houseNumber: '1',
+                            street: 'Street',
+                            town: 'Town',
+                            postCode: 'PC1',
+                            country: 'Country'
+                        }
                     });
-                    user.save((err, user) => {
-                        token = user.generateAuthToken();
-                        done();
+                    location.save((err, location) => {
+                        supplier = new Supplier({
+                            name: 'Supplier',
+                            phone: '12345',
+                            email: 'test@supplier.com'
+                        });
+                        supplier.save((err, supplier) => {
+                            category = new Category({
+                                name: 'Category',
+                                company: {
+                                    _id: company._id,
+                                    name: company.name
+                                }
+                            });
+                            category.save((err, category) => {
+                                product = new Product({
+                                    name: 'Product',
+                                    price: 10,
+                                    quantity: '1*10',
+                                    supplierReference: 'SUP-001',
+                                    supplier: {
+                                        _id: supplier._id,
+                                        name: supplier.name
+                                    }
+                                });
+                                product.save((err, product) => {
+                                    subcategory = new Subcategory({
+                                        name: 'Subcategory',
+                                        company: {
+                                            _id: company._id,
+                                            name: company.name
+                                        },
+                                        category: {
+                                            _id: category._id,
+                                            name: category.name
+                                        },
+                                        products: [{
+                                            _id: product._id,
+                                            name: product.name,
+                                            supplierName: product.supplier.name,
+                                            supplierReference: product.supplierReference
+                                        }]
+                                    });
+                                    subcategory.save((err, subcategory) => {
+                                        template = new Template({
+                                            name: 'Template',
+                                            location: {
+                                                _id: location._id,
+                                                name: location.name
+                                            },
+                                            company:{
+                                                _id: company._id,
+                                                name: company.name
+                                            },
+                                            subcategories: [{
+                                                _id: subcategory._id,
+                                                name: subcategory.name
+                                            }],
+                                            orderDays: [Date.now()]
+                                        });
+                                        template.save((err, template) => {
+                                            order = new Order({
+                                                location: {
+                                                    _id: location._id,
+                                                    name: location.name
+                                                },
+                                                date: Date.now(),
+                                                supplier: {
+                                                    _id: supplier._id,
+                                                    name: supplier.name,
+                                                    email: supplier.email
+                                                },
+                                                productsOrdered: [{
+                                                    product: {
+                                                        _id: product._id,
+                                                        name: product.name,
+                                                        price: product.price,
+                                                        supplierReference: product.supplierReference
+                                                    },
+                                                    quantity: 1
+                                                }]
+                                            });
+                                            order.save((err, order) => {
+                                                user = new User({
+                                                    email: 'testuser@testco.com',
+                                                    password: 'Password',
+                                                    firstName: 'Test',
+                                                    lastName: 'User',
+                                                    company: {
+                                                        _id: company._id,
+                                                        name: company.name
+                                                    },
+                                                    locations: [{
+                                                        _id: location._id,
+                                                        name: location.name
+                                                    }],
+                                                    role: 'Admin'
+                                                });
+                                                user.save((err, user) => {
+                                                    token = user.generateAuthToken();
+                                                    input = {
+                                                        name: 'TestCo2',
+                                                        email: 'testco2@testco.com',
+                                                        phone: '12345',
+                                                        houseNumber: '2',
+                                                        street: 'Street',
+                                                        town: 'Town',
+                                                        postCode: 'PC2',
+                                                        country: 'Country'
+                                                    };
+                                                    done();
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
                     });
                 });
             });
@@ -91,44 +217,9 @@ describe('Company Controller', () => {
                 done();
             });
         });
-
-        it(`should send a 400 status code and an error message if the parameter sent is not an object ID`, (done) => {
-            chai.request(app)
-            .get('/api/companies/fakeID')
-            .set('x-auth-token', token)
-            .end((err, res) => {
-                //Assertions about the reponse object
-                expect(res).to.have.status(400);
-                expect(res).to.be.json;
-                expect(res.body).to.be.an('object');
-                expect(res.body).to.have.property('message');
-                done();
-            });
-        });
-
-        it(`should send a 404 status code and an error message if the parameter sent is an ID that doesn't exist in the datbase`, (done) => {
-            //non-existent ID for this database copied from MongoDB's documentation
-            chai.request(app)
-            .get('/api/companies/507f1f77bcf86cd799439011')
-            .set('x-auth-token', token)
-            .end((err, res) => {
-                //Assertions about the reponse object
-                expect(res).to.have.status(404);
-                expect(res).to.be.json;
-                expect(res.body).to.be.an('object');
-                expect(res.body).to.have.property('message', 'There was no company with the given ID');
-                done();
-            });
-        });
     });
 
     describe('POST method', () => {
-        let input = {
-            name: 'TestCo',
-            email: 'mail@testco.com',
-            phone: '12345'
-        };
-
         it('should send back the newly created company if given the right input', (done) => {
             chai.request(app)
             .post('/api/companies')
@@ -138,9 +229,9 @@ describe('Company Controller', () => {
                 expect(res).to.be.json;
 
                 //Assertions about the response body
-                expect(res.body).to.be.an('object').and.to.have.property('name', company.name);
-                expect(res.body).to.have.property('email', company.email);
-                expect(res.body).to.have.property('phone', company.phone);
+                expect(res.body).to.be.an('object').and.to.have.property('company');
+                expect(res.body.company).to.have.property('email', input.email);
+                expect(res.body.company).to.have.property('phone', input.phone);
                 done();
             });
         });
@@ -165,13 +256,17 @@ describe('Company Controller', () => {
     });
 
     describe('PUT method', () => {
-        let input = {
-            name: 'TestinCo',
-            email: 'mail@testinco.com',
-            phone: '1234567'
-        };
-
         it(`should update the company with the given id`, (done) => {
+            input = {
+                name: 'TestCo2',
+                email: 'testco2@testco.com',
+                phone: '12345',
+                houseNumber: '2',
+                street: 'Street',
+                town: 'Town',
+                postCode: 'PC2',
+                country: 'Country'
+            };
             chai.request(app)
             .put(`/api/companies/${company._id}`)
             .set('x-auth-token', token)
@@ -229,35 +324,6 @@ describe('Company Controller', () => {
                 done();
             });
         });
-
-        it(`should send an easter egg when sending an invalid id`, (done) => {
-            input.email = 'mail@testco.com';
-            chai.request(app)
-            .put('/api/companies/FakeID')
-            .set('x-auth-token', token)
-            .send(input)
-            .then(res => {
-                expect(res).to.have.status(418);
-                expect(res).to.be.json;
-                expect(res.body).to.be.an('object');
-                expect(res.body).to.have.property('message', `I'm a teapot. Don't ask me to brew coffee.`);
-                done();
-            });
-        });
-
-        it(`should send an error message if the company doesn't exist`, (done) => {
-            chai.request(app)
-            .put('/api/companies/507f1f77bcf86cd799439011')
-            .set('x-auth-token', token)
-            .send(input)
-            .then(res => {
-                expect(res).to.have.status(404);
-                expect(res).to.be.json;
-                expect(res.body).to.be.an('object');
-                expect(res.body).to.have.property('message', 'There was no company with the given ID');
-                done();
-            });
-        });
     });
 
     describe('Delete method', () => {
@@ -299,32 +365,6 @@ describe('Company Controller', () => {
                 expect(res.body).to.have.property('message', 'Invalid Token');
                 done();
             }));
-        });
-
-        it(`should send an error message if the given id is invalid`, (done) => {
-            chai.request(app)
-            .del('/api/companies/fakeID')
-            .set('x-auth-token', token)
-            .end((err, res) => {
-                expect(res).to.have.status(418);
-                expect(res).to.be.json;
-                expect(res.body).to.be.an('object');
-                expect(res.body).to.have.property('message', `I'm a teapot. Don't ask me to brew coffee.`);
-                done();
-            });
-        });
-
-        it(`should send a 404 status code and error message if the company with the given ID doesn't exist`, (done) => {
-            chai.request(app)
-            .del('/api/companies/507f1f77bcf86cd799439011')
-            .set('x-auth-token', token)
-            .end((err, res) => {
-                expect(res).to.have.status(404);
-                expect(res).to.be.json;
-                expect(res.body).to.be.an('object');
-                expect(res.body).to.have.property('message', `There was no company with the given ID`);
-                done();
-            });
         });
     });
 });

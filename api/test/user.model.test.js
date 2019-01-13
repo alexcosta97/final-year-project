@@ -51,7 +51,8 @@ describe('Users Model', () => {
                                 companyId: company._id.toString(),
                                 locations: [
                                     location._id.toString()
-                                ]
+                                ],
+                                role: 'Admin'
                             };
                             user = new User({
                                 email: input.email,
@@ -67,7 +68,8 @@ describe('Users Model', () => {
                                         _id: location._id,
                                         name: location.name
                                     }
-                                ]
+                                ],
+                                role: input.role
                             });
                             done();
                         });
@@ -192,7 +194,7 @@ describe('Users Model', () => {
     describe('Generate Auth Token', () => {
         it('should generate a token with the user id', () => {
             const token = user.generateAuthToken();
-            expect(token).to.be.a.jwt.and.have.claim('id');
+            expect(token).to.be.a.jwt.and.have.claim('sub');
         });
     });
 

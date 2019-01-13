@@ -4,7 +4,7 @@ const {Company} = require('../models/company.model');
 const readAll = async (req, res) => {
     let categories;
     try{
-        categories = await Category.find({}).sort('name').exec();
+        categories = await Category.find({'company._id': req.user.company}).sort('name').exec();
     }
     catch(err){
         return res.status(409).json({message: 'There was an issue processing your request'});
@@ -16,7 +16,7 @@ const readAll = async (req, res) => {
 const read = async (req, res) => {
     let category;
     try{
-        category = await Category.findOne({_id: req.params.id}).exec();
+        category = await Category.findOne({_id: req.params.id, 'company._id': req.user.company}).exec();
     } catch(err){
         return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
     }
@@ -29,69 +29,77 @@ const read = async (req, res) => {
 };
 
 const create = async (req, res) => {
-    const {error} = validate(req.body);
-    if(error) return res.status(400).json({message: error.details[0].message});
-    
+    if(req.body.companyId === req.user.company){
+        const {error} = validate(req.body);
+        if(error) return res.status(400).json({message: error.details[0].message});
+        
 
-    let company;
-    try{
-        company = await Company.findById(req.body.companyId);
-    }catch(err){
-        return res.status(400).json({message: 'Invalid Company'});
-    }
-    if(!company) return res.status(400).json({message: 'Invalid Company'});
-
-    let category = new Category({
-        name: req.body.name,
-        company: {
-            _id: company._id,
-            name: company.name
+        let company;
+        try{
+            company = await Company.findById(req.body.companyId);
+        }catch(err){
+            return res.status(400).json({message: 'Invalid Company'});
         }
-    });
-    await category.save();
-    res.json(category);
-};
+        if(!company) return res.status(400).json({message: 'Invalid Company'});
 
-const update = async (req, res) => {
-    let category;
-    const {error} = validate(req.body);
-    if(error) return res.status(400).json({message: error.details[0].message});
-
-    let company;
-    try{
-        company = await Company.findById(req.body.companyId);
-    }catch(err){
-        return res.status(400).json({message: 'Invalid Company'});
-    }
-
-    try{
-        category = await Category.findOneAndUpdate({_id: req.params.id}, {
+        let category = new Category({
             name: req.body.name,
             company: {
                 _id: company._id,
                 name: company.name
             }
-        }, {new: false}).exec();
+        });
+        await category.save();
+        return res.json(category);
+    } else{
+        return res.status(401).json({message: `You don't have permissions to access this resource.`});
     }
-    catch(err){
-        return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
-    }
+};
 
-    if(!category)
-    {
-        return res.status(404).json({message: `There was no category with the given ID.`});
-    }
+const update = async (req, res) => {
+    if(req.body.companyId === req.user.company){
+        let category;
+        const {error} = validate(req.body);
+        if(error) return res.status(400).json({message: error.details[0].message});
 
-    res.json({
-        message: 'The operation was successful.'
-    });
+        let company;
+        try{
+            company = await Company.findById(req.body.companyId);
+        }catch(err){
+            return res.status(400).json({message: 'Invalid Company'});
+        }
+
+        try{
+            category = await Category.findOneAndUpdate({_id: req.params.id}, {
+                name: req.body.name,
+                company: {
+                    _id: company._id,
+                    name: company.name
+                }
+            }, {new: false}).exec();
+        }
+        catch(err){
+            return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
+        }
+
+        if(!category)
+        {
+            return res.status(404).json({message: `There was no category with the given ID.`});
+        }
+
+        return res.json({
+            message: 'The operation was successful.'
+        });
+    } else{
+        return res.status(401).json(`You don't have permissions to access this resource.`);
+    }
 };
 
 const del = async (req, res) => {
     let category;
 
     try{
-        category = await Category.findOneAndDelete({_id: req.params.id}).exec();
+        category = await Category.findOneAndDelete({_id: req.params.id, 'company._id': req.user.company}).exec();
     }
     catch(err){
         return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});

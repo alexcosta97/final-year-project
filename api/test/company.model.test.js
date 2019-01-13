@@ -20,10 +20,19 @@ describe('Company Model Tests', () =>{
                 companyInput = {
                     name: 'TestCo',
                     email: 'testco@test.com',
-                    phone: '789132434'
+                    phone: '789132434',
+                    houseNumber: '1',
+                    street: 'Street',
+                    town: 'Town',
+                    postCode: 'PC1',
+                    country: 'Country'
                 };
 
-                companyDB = new Company(companyInput);
+                companyDB = new Company({
+                    name: companyInput.name,
+                    email: companyInput.email,
+                    phone: companyInput.phone
+                });
                 done();
             });
         });

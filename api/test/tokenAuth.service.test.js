@@ -43,7 +43,7 @@ describe('Token Authentication', () => {
         expect(decoded).to.exist;
         expect(decoded).to.not.be.an('error');
         expect(decoded).to.be.an('object');
-        expect(decoded).to.have.property('id', user._id.toString());
+        expect(decoded).to.have.property('sub', user._id.toString());
     });
 
     it('should send an error message if the token sent is invalid', () => {

@@ -27,6 +27,16 @@ const SubcategorySchema = new Schema({
         maxlength: 50,
         trim: true
     },
+    //Saving the company to which a subcategory belongs to make sure that users can only access subcategories of their company
+    company: {
+        type: new Schema({
+            name: {
+                type: String,
+                required: true
+            }
+        }),
+        required: true
+    },
     // Creating custom schema for category to optimize query perormance
     category:{
         type: new Schema({

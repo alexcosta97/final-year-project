@@ -48,6 +48,7 @@ describe('Subcategory Model', () => {
                                     _id: category._id,
                                     name: category.name
                                 },
+                                company: category.company,
                                 products: [
                                     {
                                         _id: product._id,

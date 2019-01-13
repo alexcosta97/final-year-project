@@ -1,11 +1,12 @@
 const router = require('express').Router();
-const {authMiddleware} = require('../services/tokenAuth');
+const authorize = require('../services/authorize');
 const users = require('../controllers/user.controller');
+const Roles = require('../services/roles');
 
-router.get('/', authMiddleware, users.readAll);
-router.get('/:id', authMiddleware, users.read);
+router.get('/', authorize(Roles.Admin), users.readAll);
+router.get('/:id', authorize(), users.read);
 router.post('/', users.create);
-router.put('/:id', authMiddleware, users.update);
-router.delete('/:id', authMiddleware, users.del);
+router.put('/:id', authorize(), users.update);
+router.delete('/:id', authorize(), users.del);
 
 module.exports = router;

@@ -39,6 +39,9 @@ describe('Templates Model', () => {
                             category: {
                                 name: 'Category'
                             },
+                            company: {
+                                name: 'Company',
+                            },
                             products: [
                                 {
                                     name: 'Product',
@@ -64,11 +67,13 @@ describe('Templates Model', () => {
                                 };
                                 template = new Template({
                                     name: input.name,
-                                    locations: [
-                                        {
-                                            name: location.name
-                                        }
-                                    ],
+                                    location:{
+                                        _id: location._id,
+                                        name: location.name
+                                    },
+                                    company: {
+                                        name: 'Company'
+                                    },
                                     subcategories: [
                                         {
                                             name: subcategory.name,

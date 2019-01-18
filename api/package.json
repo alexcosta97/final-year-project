@@ -4,7 +4,7 @@
   "description": "API that exposes an online ordering system for catering businesses.",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index",
+    "start": "node index",
     "test": "NODE_ENV=test mocha --timeout 10000 --exit"
   },
   "keywords": [

@@ -10,7 +10,7 @@ services:
   - mongodb
 install:
   - npm install -g mocha
-  - npm install --prefix api
+  - npm install
 before_script:
   - sleep 15
   - mongo mydb_test --eval 'db.createUser({user:"travis",pwd:"test",roles:["readWrite"]});'

@@ -19,8 +19,7 @@ router.post('/', async (req, res) => {
 
     //Create and send JSON Web Token
     const token = user.generateAuthToken();
-    res.set('x-auth-token', token);
-    res.json({message: `You're logged in!`});
+    res.json({userId: user._id, token: token});
 });
 
 //Creating input validation for authentication

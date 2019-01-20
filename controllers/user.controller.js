@@ -6,7 +6,7 @@ const Roles = require('../services/roles');
 const readAll = async (req, res) => {
     let users;
     try{
-        users = await User.find({}).exec();
+        users = await User.find({}).select('-password').exec();
     } catch(err){
         return res.status(409).json({message: 'Something went wrong'});
     }
@@ -18,7 +18,7 @@ const read = async(req, res) => {
     if(req.user.role === Roles.Admin || req.user.id === req.params.id){
         let user;
         try{
-            user = await User.findById(req.params.id).exec();
+            user = await User.findById(req.params.id).select('-password').exec();
         }catch(err){
             return res.status(400).json({message: 'Invalid User ID'});
         }
@@ -34,7 +34,7 @@ const create = async (req, res) => {
     const {error} = validate(req.body);
     if(error) return res.status(400).json({message: error.details[0].message});
     
-    let company = await Company.findById(req.body.companyId).exec();
+    let company = await Company.findById(req.user.company).exec();
     if(!company) return res.status(400).json({message: 'Invalid Company'});
 
     let locations = [];
@@ -70,8 +70,21 @@ const create = async (req, res) => {
 
     await user.save();
     let token = user.generateAuthToken();
+    resUser = {
+        employeeID: user.employeeID,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        company: {
+            _id: company._id,
+            name: company.name
+        },
+        locations: locations,
+        role: user.role
+    }
+
     res.set('x-auth-token', token)
-    .json(user);
+    .json(resUser);
 };
 
 const update = async (req, res) => {
@@ -80,7 +93,7 @@ const update = async (req, res) => {
         const {error} = validate(req.body);
         if(error) return res.status(400).json({message: error.details[0].message});
 
-        let company = await Company.findById(req.body.companyId).exec();
+        let company = await Company.findById(req.user.companyId).exec();
         if(!company) return res.status(400).json({message: 'Invalid Company'});
 
         let locations = [];

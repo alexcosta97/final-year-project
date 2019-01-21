@@ -34,7 +34,7 @@ const create = async (req, res) => {
     const {error} = validate(req.body);
     if(error) return res.status(400).json({message: error.details[0].message});
     
-    let company = await Company.findById(req.body.company).exec();
+    let company = await Company.findById(req.body.companyId).exec();
     if(!company) return res.status(400).json({message: 'Invalid Company'});
 
     let locations = [];
@@ -75,11 +75,8 @@ const create = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        company: {
-            _id: company._id,
-            name: company.name
-        },
-        locations: locations,
+        company: user.company,
+        locations: user.locations,
         role: user.role
     }
 
@@ -93,7 +90,7 @@ const update = async (req, res) => {
         const {error} = validate(req.body);
         if(error) return res.status(400).json({message: error.details[0].message});
 
-        let company = await Company.findById(req.user.companyId).exec();
+        let company = await Company.findById(req.body.companyId).exec();
         if(!company) return res.status(400).json({message: 'Invalid Company'});
 
         let locations = [];

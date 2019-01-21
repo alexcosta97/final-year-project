@@ -49,7 +49,7 @@ describe('Auth Route', () => {
         .then(res => {
             expect(res).to.have.status(200);
             expect(res).to.be.json;
-            expect(res.body).to.have.property('token', token);
+            expect(res.body).to.have.property('token');
             done();
         });
     });

@@ -34,7 +34,7 @@ const create = async (req, res) => {
     const {error} = validate(req.body);
     if(error) return res.status(400).json({message: error.details[0].message});
     
-    let company = await Company.findById(req.user.company).exec();
+    let company = await Company.findById(req.body.company).exec();
     if(!company) return res.status(400).json({message: 'Invalid Company'});
 
     let locations = [];

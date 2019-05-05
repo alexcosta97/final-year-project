@@ -5,6 +5,7 @@ chai.use(require('chai-jwt'));
 const expect = chai.expect;
 const mongoose = require('mongoose');
 const config = require('config');
+const {Company} = require('../models/company.model');
 const {User} = require('../models/user.model');
 
 let user;
@@ -16,27 +17,27 @@ describe('Auth Route', () => {
         mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});
         mongoose.connection.once('open', () => {
             mongoose.connection.dropDatabase(() => {
-                user = new User({
-                    email: 'user@testco.com',
-                    password: 'Password',
-                    firstName: 'Test',
-                    lastName: 'User',
-                    company: {
-                        name: 'TestCo'
-                    },
-                    locations: [
-                        {
-                            name: 'TestLocation'
-                        }
-                    ]
+                company = new Company({
+                    name: 'TestCo',
+                    email: 'test@testco.com',
+                    phone: '01234 123 123'
                 });
-                input = {
-                    email: 'user@testco.com',
-                    password: 'Password'
-                }
-                user.save((err, user) => {
-                    token = user.generateAuthToken();
-                    done();
+                company.save((err, company) => {
+                    user = new User({
+                        email: 'user@testco.com',
+                        password: 'Password',
+                        firstName: 'Test',
+                        lastName: 'User',
+                        company: company._id
+                    });
+                    input = {
+                        email: 'user@testco.com',
+                        password: 'Password'
+                    };
+                    user.save((err, user) => {
+                        token = user.generateAuthToken();
+                        done();
+                    })
                 });
             });
         });

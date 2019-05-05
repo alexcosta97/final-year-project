@@ -26,17 +26,14 @@ describe('Product Model', () => {
                             price: 10,
                             quantity: '1*10',
                             supplierReference: 'SUP-001',
-                            supplierId: supplier._id.toString()
+                            supplier: supplier._id.toString()
                         };
                         product = new Product({
                             name: input.name,
                             price: input.price,
                             quantity: input.quantity,
                             supplierReference: input.supplierReference,
-                            supplier: {
-                                _id: supplier._id,
-                                name: supplier.name
-                            }
+                            supplier: supplier._id
                         });
                         done();
                     });

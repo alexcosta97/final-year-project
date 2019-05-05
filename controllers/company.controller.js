@@ -36,10 +36,7 @@ const create = async(req, res) => {
     let headQuarters = new Location({
         name: 'Head Quarters',
         phone: company.phone,
-        company: {
-            _id: company._id,
-            name: company.name
-        },
+        company: company._id,
         email: company.email,
         address: {
             houseNumber: req.body.houseNumber,

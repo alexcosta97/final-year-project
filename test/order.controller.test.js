@@ -31,11 +31,8 @@ describe('Order controller', () => {
                 company.save((err, company) => {
                     location = new Location({
                         name: 'Head Office',
+                        company: company._id,
                         phone: company.phone,
-                        company: {
-                            _id: company._id,
-                            name: company.name
-                        },
                         address: {
                             houseNumber: '1',
                             street: 'Street',
@@ -50,105 +47,65 @@ describe('Order controller', () => {
                             phone: '12345',
                             email: 'test@supplier.com'
                         });
+
                         supplier.save((err, supplier) => {
                             category = new Category({
                                 name: 'Category',
-                                company: {
-                                    _id: company._id,
-                                    name: company.name
-                                }
+                                company: company._id
                             });
                             category.save((err, category) => {
-                                product = new Product({
-                                    name: 'Product',
-                                    price: 10,
-                                    quantity: '1*10',
-                                    supplierReference: 'SUP-001',
-                                    supplier: {
-                                        _id: supplier._id,
-                                        name: supplier.name
-                                    }
+                                subcategory = new Subcategory({
+                                    name: 'Subcategory',
+                                    company: company._id,
+                                    category: category._id
                                 });
-                                product.save((err, product) => {
-                                    subcategory = new Subcategory({
-                                        name: 'Subcategory',
-                                        company: {
-                                            _id: company._id,
-                                            name: company.name
-                                        },
-                                        category: {
-                                            _id: category._id,
-                                            name: category.name
-                                        },
-                                        products: [{
-                                            _id: product._id,
-                                            name: product.name,
-                                            supplierName: product.supplier.name,
-                                            supplierReference: product.supplierReference
-                                        }]
+                                subcategory.save((err, subcategory) => {
+                                    template = new Template({
+                                        name: 'Template',
+                                        location: location._id,
+                                        company: company._id,
+                                        supplier: supplier._id,
+                                        orderDays: [Date.now()]
                                     });
-                                    subcategory.save((err, subcategory) => {
-                                        template = new Template({
-                                            name: 'Template',
-                                            location: {
-                                                _id: location._id,
-                                                name: location.name
-                                            },
-                                            company:{
-                                                _id: company._id,
-                                                name: company.name
-                                            },
-                                            subcategories: [{
-                                                _id: subcategory._id,
-                                                name: subcategory.name
-                                            }],
-                                            orderDays: [Date.now()]
+                                    template.save((err, template) => {
+                                        product = new Product({
+                                            name: 'Product',
+                                            price: 10,
+                                            quantity: '1*10',
+                                            supplierReference: 'SUP-001',
+                                            supplier: supplier._id,
+                                            category: category._id,
+                                            subcategory: subcategory._id
                                         });
-                                        template.save((err, template) => {
+                                        product.save((err, product) => {
                                             order = new Order({
-                                                location: {
-                                                    _id: location._id,
-                                                    name: location.name
-                                                },
-                                                date: Date.now(),
-                                                supplier: {
-                                                    _id: supplier._id,
-                                                    name: supplier.name,
-                                                    email: supplier.email
-                                                },
+                                                location: location._id,
+                                                date: new Date().toISOString(),
+                                                supplier: supplier._id,
                                                 productsOrdered: [{
-                                                    product: {
-                                                        _id: product._id,
-                                                        name: product.name,
-                                                        price: product.price,
-                                                        supplierReference: product.supplierReference
-                                                    },
+                                                    product: product._id,
                                                     quantity: 1
                                                 }]
                                             });
                                             order.save((err, order) => {
+                                                console.log(err);
                                                 user = new User({
                                                     email: 'testuser@testco.com',
                                                     password: 'Password',
                                                     firstName: 'Test',
                                                     lastName: 'User',
-                                                    company: {
-                                                        _id: company._id,
-                                                        name: company.name
-                                                    },
-                                                    locations: [{
-                                                        _id: location._id,
-                                                        name: location.name
-                                                    }],
+                                                    company: company._id,
+                                                    locations: [location._id],
                                                     role: 'Admin'
                                                 });
                                                 user.save((err, user) => {
                                                     token = user.generateAuthToken();
                                                     input = {
-                                                        locationId: location._id,
-                                                        supplierId: supplier._id,
+                                                        location: location._id,
+                                                        date: new Date().toISOString(),
+                                                        supplier: supplier._id,
                                                         productsOrdered: [{
-                                                            productId: product._id,
+                                                            product: product._id,
                                                             quantity: 1
                                                         }]
                                                     };
@@ -176,7 +133,7 @@ describe('Order controller', () => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
                 expect(res.body).to.be.an('array').and.has.lengthOf(1);
-                expect(res.body[0].location).to.have.property('name', order.location.name);
+                expect(res.body[0].productsOrdered[0]).to.have.property('quantity', 1);
                 done();
             });
         });
@@ -192,8 +149,7 @@ describe('Order controller', () => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
                 expect(res.body).to.be.an('object');
-                expect(res.body.location).to.have.property('name', order.location.name);
-
+                expect(res.body.productsOrdered[0]).to.have.property('quantity', 1);
                 done();
             });
         });
@@ -238,13 +194,13 @@ describe('Order controller', () => {
                 expect(res).to.have.status(200);
                 expect(res).to.be.json;
                 expect(res.body).to.be.an('object');
-                expect(res.body.location).to.have.property('name', order.location.name);
+                expect(res.body.productsOrdered[0]).to.have.property('quantity', 1);
                 done();
             });
         });
 
         it(`should send a 400 status code and an error message if the given input isn't valid`, (done) => {
-            input.locationId = 'bla';
+            input.location = 'bla';
             chai.request(app)
             .post('/api/orders/')
             .set('x-auth-token', token)
@@ -261,7 +217,7 @@ describe('Order controller', () => {
 
     describe('Update', () => {
         it(`should update the order with the given id`, (done) => {
-            input.locationId = location._id;
+            input.location = location._id;
             chai.request(app)
             .put(`/api/orders/${order._id}`)
             .set('x-auth-token', token)
@@ -277,7 +233,7 @@ describe('Order controller', () => {
         });
 
         it(`should send an error message when sending an invalid input`, (done) => {
-            input.locationId = 'bl';
+            input.location = 'bl';
             chai.request(app)
             .put(`/api/orders/${order._id}`)
             .set('x-auth-token', token)
@@ -292,7 +248,7 @@ describe('Order controller', () => {
         });
 
         it(`should send an easter egg when sending an invalid id`, (done) => {
-            input.locationId = location._id;
+            input.location = location._id;
             chai.request(app)
             .put('/api/orders/FakeID')
             .set('x-auth-token', token)

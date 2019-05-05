@@ -25,14 +25,11 @@ describe('Testing the Category model', () =>{
                     company.save((err, company) => {
                         input = {
                             name: 'Category',
-                            companyId: company._id.toString()
+                            company: company._id.toString()
                         };
                         category = new Category({
                             name: input.name,
-                            company: {
-                                _id: company._id,
-                                name: company.name
-                            }
+                            company: company._id
                         });
                         done();
                     });

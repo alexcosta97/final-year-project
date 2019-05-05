@@ -6,7 +6,7 @@ const Roles = require('../services/roles');
 const readAll = async (req, res) => {
     let locations;
     try{
-        locations = await Location.find({'company._id': req.user.company}).sort('name').exec();
+        locations = await Location.find({'company': req.user.company}).sort('name').exec();
     }
     catch(err){
         return res.status(409).json({message: 'There was an issue processing your request'});
@@ -58,10 +58,7 @@ const create = async (req, res) => {
         name: req.body.name,
         phone: req.body.phone,
         fax: req.body.fax,
-        company: {
-            _id: company._id,
-            name: company.name
-        },
+        company: company._id,
         email: req.body.email,
         address: {
             houseNumber: req.body.houseNumber,
@@ -88,14 +85,11 @@ const update = async (req, res) => {
     }
 
     try{
-        location = await Location.findOneAndUpdate({_id: req.params.id, 'company._id': req.user.company}, {
+        location = await Location.findOneAndUpdate({_id: req.params.id, 'company': req.user.company}, {
             name: req.body.name,
             phone: req.body.phone,
             fax: req.body.fax,
-            company: {
-                _id: company._id,
-                name: company.name
-            },
+            company: company._id,
             email: req.body.email,
             address: {
                 houseNumber: req.body.houseNumber,
@@ -124,7 +118,7 @@ const del = async (req, res) => {
     let location;
 
     try{
-        location = await Location.findOneAndDelete({_id: req.params.id, 'company._id': req.user.company}).exec();
+        location = await Location.findOneAndDelete({_id: req.params.id, 'company': req.user.company}).exec();
     }
     catch(err){
         return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});

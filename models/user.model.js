@@ -8,15 +8,6 @@ const Roles = require('../services/roles');
 
 // Add enum for user roles
 
-//Creating custom schema for locations for query performance
-const LocationSchema = new Schema ({
-    //No extra validation needed since information comes from locations' original documents
-    name: {
-        type: String,
-        required: true
-    }
-});
-
 const UserSchema = new Schema({
     employeeID: {
         type: String,
@@ -48,17 +39,14 @@ const UserSchema = new Schema({
         required: true
     },
     company:{
-        type: new Schema({
-            //No extra validation needed since info comes from company's document
-            name: {
-                type: String,
-                required: true
-            }
-        })
+        type: Schema.Types.ObjectId,
+        ref: 'Company',
+        required: true
     },
-    locations: {
-        type: [LocationSchema]
-    },
+    locations: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Location'
+    }],
     role: {
         type: String,
         required: true,
@@ -105,7 +93,7 @@ UserSchema.methods.generateAuthToken = function() {
     for(i = 0; i < this.locations.length; i++){
         locations.push(this.locations[i]._id);
     }
-    return jwt.sign({sub: this._id, role: this.role, company: this.company._id, locations: locations}, config.get('jwtPrivateKey'));
+    return jwt.sign({sub: this._id, role: this.role, company: this.company, locations: locations}, config.get('jwtPrivateKey'));
 };
 
 const User = mongoose.model('User', UserSchema);
@@ -119,7 +107,7 @@ const validateUser = (user) => {
         password: Joi.string().min(8).max(255).required(),
         firstName: Joi.string().min(3).max(255).required(),
         lastName: Joi.string().min(3).max(255).required(),
-        companyId: Joi.objectId().required(),
+        company: Joi.objectId().required(),
         locations: Joi.array().items(Joi.objectId()),
         role: Joi.string().valid(Roles.Admin, Roles.User).required()
     };

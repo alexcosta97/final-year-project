@@ -1,5 +1,7 @@
 const {Product, validate} = require('../models/product.model');
 const {Supplier} = require('../models/supplier.model');
+const {Category} = require('../models/category.model');
+const {Subcategory} = require('../models/subcategory.model');
 
 const readAll = async (req, res) => {
     let products;
@@ -35,21 +37,34 @@ const create = async (req, res) => {
 
     let supplier;
     try{
-        supplier = await Supplier.findById(req.body.supplierId);
+        supplier = await Supplier.findById(req.body.supplier);
     }catch(err){
         return res.status(400).json({message: 'Invalid Supplier'});
     }
     if(!supplier) return res.status(400).json({message: 'Invalid Supplier'});
+
+    let category = null;
+    try{
+        category = await Category.findById(req.body.category);
+    }catch(err){
+        return res.status(400).json({message: 'Invalid Category'});
+    }
+
+    let subcategory = null;
+    try{
+        subcategory = await Subcategory.findById(req.body.subcategory);
+    } catch(err){
+        return res.status(400).json({message: 'Invalid Subcategory'});
+    }
 
     let product = new Product({
         name: req.body.name,
         price: req.body.price,
         quantity: req.body.quantity,
         supplierReference: req.body.supplierReference,
-        supplier: {
-            _id: supplier._id,
-            name: supplier.name
-        }
+        supplier: supplier._id,
+        category: category !==  null ? category._id: category,
+        subcategory: subcategory !== null ? subcateogry._id : subcategory
     });
     await product.save();
     res.json(product);
@@ -62,9 +77,23 @@ const update = async (req, res) => {
 
     let supplier;
     try{
-        supplier = await Supplier.findById(req.body.supplierId);
+        supplier = await Supplier.findById(req.body.supplier);
     }catch(err){
         return res.status(400).json({message: 'Invalid Supplier'});
+    }
+
+    let category = null;
+    try{
+        category = await Category.findById(req.body.category);
+    }catch(err){
+        return res.status(400).json({message: 'Invalid Category'});
+    }
+
+    let subcategory = null;
+    try{
+        subcategory = await Subcategory.findById(req.body.subcategory);
+    } catch(err){
+        return res.status(400).json({message: 'Invalid Subcategory'});
     }
 
     try{
@@ -73,10 +102,9 @@ const update = async (req, res) => {
             price: req.body.price,
             quantity: req.body.quantity,
             supplierReference: req.body.supplierReference,
-            supplier: {
-                _id: supplier._id,
-                name: supplier.name
-            }
+            supplier: supplier._id,
+            category: category !== null ? category._id : category,
+            subcategory: subcategory !== null ? subcategory._id : subcategory
         }, {new: false}).exec();
     }
     catch(err){

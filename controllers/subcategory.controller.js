@@ -1,5 +1,4 @@
 const {Subcategory, validate} = require('../models/subcategory.model');
-const {Product} = require('../models/product.model');
 const {Category} = require('../models/category.model');
 const {Company} = require('../models/company.model');
 
@@ -7,7 +6,7 @@ const readAll = async (req, res) => {
     let subcategories;
     try{
         //When reading all, the list of categories returned is limited to the ones that belong to the company that the user works for
-        subcategories = await Subcategory.find({'company._id': req.user.company}).sort('name').exec();
+        subcategories = await Subcategory.find({'company': req.user.company}).sort('name').exec();
     }
     catch(err){
         return res.status(409).json({message: 'There was an issue processing your request'});
@@ -20,7 +19,7 @@ const read = async (req, res) => {
     let subcategory;
     try{
         //When reading a single subcategory, the result is limited not only to the id of the subcategory but also to the company that the user works for to ensure that the user is only accessing data that they have access for
-        subcategory = await Subcategory.findOne({_id: req.params.id, 'company._id': req.user.company}).exec();
+        subcategory = await Subcategory.findOne({_id: req.params.id, 'company': req.user.company}).exec();
     } catch(err){
         return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
     }
@@ -35,24 +34,6 @@ const read = async (req, res) => {
 const create = async (req, res) => {
     const {error} = validate(req.body);
     if(error) return res.status(400).json({message: error.details[0].message});
-    
-
-    let products = [];
-    for(i = 0; i < req.body.products.length; i++){
-        let product;
-        try{
-            product = await Product.findById(req.body.products[i]);
-        }catch(err){
-            return res.status(400).json({message: 'Invalid Product'});
-        }
-        if(!product) return res.status(400).json({message: 'Invalid Product'});
-        products.push({
-            _id: product._id,
-            name: product.name,
-            supplierName: product.supplier.name,
-            supplierReference: product.supplierReference
-        });
-    }
 
     let category;
     try{
@@ -73,15 +54,8 @@ const create = async (req, res) => {
 
     let subcategory = new Subcategory({
         name: req.body.name,
-        category: {
-            _id: category._id,
-            name: category.name
-        },
-        company: {
-            _id: company._id,
-            name: company.name
-        },
-        products: products
+        category: category._id,
+        company: company._id
     });
     await subcategory.save();
     res.json(subcategory);
@@ -91,23 +65,6 @@ const update = async (req, res) => {
     let subcategory;
     const {error} = validate(req.body);
     if(error) return res.status(400).json({message: error.details[0].message});
-
-    let products = [];
-    for(i = 0; i < req.body.products.length; i++){
-        let product;
-        try{
-            product = await Product.findById(req.body.products[i]);
-        }catch(err){
-            return res.status(400).json({message: 'Invalid Product'});
-        }
-        if(!product) return res.status(400).json({message: 'Invalid Product'});
-        products.push({
-            _id: product._id,
-            name: product.name,
-            supplierName: product.supplier.name,
-            supplierReference: product.supplierReference
-        });
-    }
 
     let category;
     try{
@@ -128,17 +85,10 @@ const update = async (req, res) => {
 
     try{
         //Using the user's company to ensure that the user is accessing the right data
-        subcategory = await Subcategory.findOneAndUpdate({_id: req.params.id, 'company._id': req.user.company}, {
+        subcategory = await Subcategory.findOneAndUpdate({_id: req.params.id, 'company': req.user.company}, {
             name: req.body.name,
-            category: {
-                _id: category._id,
-                name: category.name
-            },
-            company: {
-                _id: company._id,
-                name: company.name
-            },
-            products: products
+            category: category._id,
+            company: company._id
         }, {new: false}).exec();
     }
     catch(err){
@@ -159,7 +109,7 @@ const del = async (req, res) => {
     let subcategory;
     try{
         // Using the user's company to make sure that the user is accessing the right data
-        subcategory = await Subcategory.findOneAndDelete({_id: req.params.id, 'company._id': req.user.company}).exec();
+        subcategory = await Subcategory.findOneAndDelete({_id: req.params.id, 'company': req.user.company}).exec();
     }
     catch(err){
         return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});

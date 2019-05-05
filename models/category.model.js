@@ -11,14 +11,10 @@ const CategorySchema = new Schema({
         minlength: 5,
         maxlength: 50
     },
-    //Not requesting all the info from company so using a custom schema
-    company:{
-        type: new Schema({
-            name:{
-                type: String,
-                required: true
-            }
-        }),
+    //Not requesting all the info from company - just ID
+    company: {
+        type: Schema.Types.ObjectId,
+        ref: 'Company',
         required: true
     }
 });
@@ -29,7 +25,7 @@ const Category = mongoose.model('Category', CategorySchema);
 const validateCategory = (category) =>{
     //creating a joi-unique validation schema
     const schema = {
-        companyId: Joi.objectId().required(),
+        company: Joi.objectId().required(),
         name: Joi.string().min(5).max(50).required()
     };
 

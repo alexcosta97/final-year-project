@@ -34,7 +34,7 @@ const create = async (req, res) => {
     const {error} = validate(req.body);
     if(error) return res.status(400).json({message: error.details[0].message});
     
-    let company = await Company.findById(req.body.companyId).exec();
+    let company = await Company.findById(req.body.company).exec();
     if(!company) return res.status(400).json({message: 'Invalid Company'});
 
     let locations = [];
@@ -47,10 +47,7 @@ const create = async (req, res) => {
                 return res.status(400).json({message: 'Invalid Location'});
             }
             if(!location) return res.status(400).json({message: 'Invalid Location'});
-            locations.push({
-                _id: location._id,
-                name: location.name
-            });
+            locations.push(location._id);
         }
     }
 
@@ -60,10 +57,7 @@ const create = async (req, res) => {
         password: req.body.password,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        company: {
-            _id: company._id,
-            name: company.name
-        },
+        company: company._id,
         locations: locations,
         role: req.body.role
     });
@@ -71,6 +65,7 @@ const create = async (req, res) => {
     await user.save();
     let token = user.generateAuthToken();
     resUser = {
+        id: user._id,
         employeeID: user.employeeID,
         email: user.email,
         firstName: user.firstName,
@@ -90,7 +85,7 @@ const update = async (req, res) => {
         const {error} = validate(req.body);
         if(error) return res.status(400).json({message: error.details[0].message});
 
-        let company = await Company.findById(req.body.companyId).exec();
+        let company = await Company.findById(req.body.company).exec();
         if(!company) return res.status(400).json({message: 'Invalid Company'});
 
         let locations = [];
@@ -103,10 +98,7 @@ const update = async (req, res) => {
                     return res.status(400).json({message: 'Invalid Location'});
                 }
                 if(!location) return res.status(400).json({message: 'Invalid Location'});
-                locations.push({
-                    _id: location._id,
-                    name: location.name
-                });
+                locations.push(location._id);
             }
         }
 
@@ -117,10 +109,7 @@ const update = async (req, res) => {
                 password: req.body.password,
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
-                company: {
-                    _id: company._id,
-                    name: company.name
-                },
+                company: company._id,
                 locations: locations,
                 role: req.body.role
             }, {new: false}).exec();

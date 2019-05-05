@@ -28,16 +28,19 @@ const ProductSchema = new Schema({
         minlength: 3,
         maxlength: 50
     },
-    // Creating a custom schema for supplier for query performance optimization
+    // Storing only supplier ID here
     supplier:{
-        type: new Schema({
-            //No extra validation parameters required since the data comes from the original supplier's document
-            name: {
-                type: String,
-                required: true
-            }
-        }),
+        type: Schema.Types.ObjectId,
+        ref: 'Supplier',
         required: true
+    },
+    category: {
+        type: Schema.Types.ObjectId,
+        ref: 'Category'
+    },
+    subcategory: {
+        type: Schema.Types.ObjectId,
+        ref: 'Subcategory'
     }
 });
 
@@ -51,7 +54,9 @@ const validateProduct = (product) => {
         price: Joi.number().min(0).required(),
         quantity: Joi.string().min(1).max(50),
         supplierReference: Joi.string().min(3).max(50).required(),
-        supplierId: Joi.objectId().required()
+        supplier: Joi.objectId().required(),
+        category: Joi.objectId(),
+        subcategory: Joi.objectId()
     };
 
     return Joi.validate(product, schema);

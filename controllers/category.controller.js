@@ -4,7 +4,7 @@ const {Company} = require('../models/company.model');
 const readAll = async (req, res) => {
     let categories;
     try{
-        categories = await Category.find({'company._id': req.user.company}).sort('name').exec();
+        categories = await Category.find({'company': req.user.company}).sort('name').exec();
     }
     catch(err){
         return res.status(409).json({message: 'There was an issue processing your request'});
@@ -16,7 +16,7 @@ const readAll = async (req, res) => {
 const read = async (req, res) => {
     let category;
     try{
-        category = await Category.findOne({_id: req.params.id, 'company._id': req.user.company}).exec();
+        category = await Category.findOne({_id: req.params.id, 'company': req.user.company}).exec();
     } catch(err){
         return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});
     }
@@ -29,14 +29,14 @@ const read = async (req, res) => {
 };
 
 const create = async (req, res) => {
-    if(req.body.companyId === req.user.company){
+    if(req.body.company === req.user.company){
         const {error} = validate(req.body);
         if(error) return res.status(400).json({message: error.details[0].message});
         
 
         let company;
         try{
-            company = await Company.findById(req.body.companyId);
+            company = await Company.findById(req.body.company);
         }catch(err){
             return res.status(400).json({message: 'Invalid Company'});
         }
@@ -44,10 +44,7 @@ const create = async (req, res) => {
 
         let category = new Category({
             name: req.body.name,
-            company: {
-                _id: company._id,
-                name: company.name
-            }
+            company: company._id
         });
         await category.save();
         return res.json(category);
@@ -57,14 +54,14 @@ const create = async (req, res) => {
 };
 
 const update = async (req, res) => {
-    if(req.body.companyId === req.user.company){
+    if(req.body.company === req.user.company){
         let category;
         const {error} = validate(req.body);
         if(error) return res.status(400).json({message: error.details[0].message});
 
         let company;
         try{
-            company = await Company.findById(req.body.companyId);
+            company = await Company.findById(req.body.company);
         }catch(err){
             return res.status(400).json({message: 'Invalid Company'});
         }
@@ -72,10 +69,7 @@ const update = async (req, res) => {
         try{
             category = await Category.findOneAndUpdate({_id: req.params.id}, {
                 name: req.body.name,
-                company: {
-                    _id: company._id,
-                    name: company.name
-                }
+                company: company._id
             }, {new: false}).exec();
         }
         catch(err){
@@ -99,7 +93,7 @@ const del = async (req, res) => {
     let category;
 
     try{
-        category = await Category.findOneAndDelete({_id: req.params.id, 'company._id': req.user.company}).exec();
+        category = await Category.findOneAndDelete({_id: req.params.id, 'company': req.user.company}).exec();
     }
     catch(err){
         return res.status(418).json({message: `I'm a teapot. Don't ask me to brew coffee.`});

@@ -61,12 +61,8 @@ const LocationSchema = new Schema({
         maxlength: 50
     },
     company:{
-        type: new Schema({
-            name:{
-                type: String,
-                required: true
-            }
-        }),
+        type: Schema.Types.ObjectId,
+        ref: 'Company',
         required: true
     },
     email: {
@@ -90,7 +86,7 @@ const validateLocation = (location) => {
         name: Joi.string().min(3).max(50).required(),
         phone: Joi.string().min(5).max(50).required(),
         fax: Joi.string().min(5).max(50),
-        companyId: Joi.objectId().required(),
+        company: Joi.objectId().required(),
         email: Joi.string().min(10).max(255).email(),
         houseNumber: Joi.string().min(1).max(20).required(),
         street: Joi.string().min(3).max(255).required(),

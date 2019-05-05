@@ -1,7 +1,12 @@
 const {Order, validate} = require('../models/order.model');
+const {Company} = require('../models/company.model');
 const {Location} = require('../models/location.model');
 const {Supplier} = require('../models/supplier.model');
+const {Category} = require('../models/category.model');
 const {Product} = require('../models/product.model');
+const {Subcategory} = require('../models/subcategory.model');
+const {Template} = require('../models/template.model');
+const {User} = require('../models/user.model');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const config = require('config');
@@ -16,77 +21,97 @@ describe('Orders Model', () => {
     before((done) => {
         mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});
         mongoose.connection.once('open', () => {
-            //Resets the database before creating the new model objects
-            mongoose.connection.collections.orders.drop(() => {
-                mongoose.connection.collections.locations.drop(() => {
-                    mongoose.connection.collections.suppliers.drop(() => {
-                        mongoose.connection.collections.products.drop(() => {
-                            location = new Location({
-                                name: 'Location',
-                                phone: '12345',
-                                company: {
-                                    name: 'Company'
-                                },
-                                email: 'mail@testco.com',
-                                address: {
-                                    houseNumber: '1',
-                                    street: 'Street',
-                                    town: 'Town',
-                                    postCode: 'PC1',
-                                    country: 'Country'
-                                }
+            mongoose.connection.dropDatabase(() => {
+                company = new Company({
+                    name: 'Company',
+                    email: 'company@testco.com',
+                    phone: '12345'
+                });
+                company.save((err, company) => {
+                    location = new Location({
+                        name: 'Head Office',
+                        phone: company.phone,
+                        company: company._id,
+                        address: {
+                            houseNumber: '1',
+                            street: 'Street',
+                            town: 'Town',
+                            postCode: 'PC1',
+                            country: 'Country'
+                        }
+                    });
+                    location.save((err, location) => {
+                        supplier = new Supplier({
+                            name: 'Supplier',
+                            phone: '12345',
+                            email: 'test@supplier.com'
+                        });
+                        supplier.save((err, supplier) => {
+                            category = new Category({
+                                name: 'Category',
+                                company: company._id
                             });
-                            supplier = new Supplier({
-                                name: 'Supplier',
-                                phone: '12345',
-                                email: 'supplier@test.com'
-                            });
-                            product = new Product({
-                                name: 'Product',
-                                price: 10,
-                                quantity: '1*10',
-                                supplierReference: 'SUP-001',
-                                supplier: {
-                                    name: 'Supplier'
-                                }
-                            });
-                            location.save((err, location) => {
-                                supplier.save((err, supplier) => {
-                                    product.save((err, product) => {
-                                        input = {
-                                            locationId: location._id.toString(),
-                                            supplierId: supplier._id.toString(),
-                                            productsOrdered: [
-                                                {
-                                                    productId: product._id.toString(),
-                                                    quantity: 3
-                                                }
-                                            ]
-                                        };
-                                        order = new Order({
-                                            location: {
-                                                _id: location._id,
-                                                name: location.name
-                                            },
-                                            date: Date.now(),
-                                            supplier: {
-                                                _id: supplier._id,
-                                                name: supplier.name,
-                                                email: supplier.email
-                                            },
-                                            productsOrdered: [
-                                                {
-                                                    product: {
-                                                        _id: product._id,
-                                                        name: product.name,
-                                                        price: product.price,
-                                                        supplierReference: product.supplierReference
-                                                    },
-                                                    quantity: input.productsOrdered[0].quantity
-                                                }
-                                            ]
+                            category.save((err, category) => {
+                                subcategory = new Subcategory({
+                                    name: 'Subcategory',
+                                    company: company._id,
+                                    category: category._id
+                                });
+                                subcategory.save((err, subcategory) => {
+                                    template = new Template({
+                                        name: 'Template',
+                                        location: location._id,
+                                        company: company._id,
+                                        supplier: supplier._id,
+                                        orderDays: [Date.now()]
+                                    });
+                                    product = new Product({
+                                        name: 'Product',
+                                        price: 10,
+                                        quantity: '1*10',
+                                        supplierReference: 'SUP-001',
+                                        supplier: supplier._id,
+                                        category: category._id,
+                                        subcategory: subcategory._id
+                                    });
+                                    product.save((err, template) => {
+                                        template.save((err, template) => {
+                                            order = new Order({
+                                                location: location._id,
+                                                date: new Date().toISOString(),
+                                                supplier: supplier._id,
+                                                productsOrdered: [{
+                                                    product: product._id,
+                                                    quantity: 1
+                                                }]
+                                            });
+                                            order.save((err, order) => {
+                                                user = new User({
+                                                    email: 'testuser@testco.com',
+                                                    password: 'Password',
+                                                    firstName: 'Test',
+                                                    lastName: 'User',
+                                                    company: company._id,
+                                                    locations: [location._id],
+                                                    role: 'Admin'
+                                                });
+                                                user.save((err, user) => {
+                                                    token = user.generateAuthToken();
+                                                    input = {
+                                                        location: location._id.toString(),
+                                                        date: new Date().toISOString(),
+                                                        supplier: supplier._id.toString(),
+                                                        productsOrdered: [
+                                                            {
+                                                                product: product._id.toString(),
+                                                                quantity: 3
+                                                            }
+                                                        ]
+                                                    };
+                                                    done();
+                                                });
+                                            });
                                         });
-                                        done();
                                     });
                                 });
                             });

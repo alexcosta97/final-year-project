@@ -1,6 +1,12 @@
 const {User, validate} = require('../models/user.model');
-const {Location} = require('../models/location.model');
 const {Company} = require('../models/company.model');
+const {Location} = require('../models/location.model');
+const {Supplier} = require('../models/supplier.model');
+const {Category} = require('../models/category.model');
+const {Product} = require('../models/product.model');
+const {Subcategory} = require('../models/subcategory.model');
+const {Template} = require('../models/template.model');
+const {Order} = require('../models/order.model');
 const chai = require('chai');
 chai.use(require('chai-jwt'));
 const expect = chai.expect;
@@ -17,63 +23,102 @@ describe('Users Model', () => {
     before((done) => {
         mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});
         mongoose.connection.once('open', () => {
-            //Resets the database before creating the new model objects
-            mongoose.connection.collections.locations.drop(() => {
-                mongoose.connection.collections.companies.drop(() => {
-                    company = new Company({
-                        name: 'TestCo',
-                        email: 'testco@test.com',
-                        phone: '12345'
+            mongoose.connection.dropDatabase(() => {
+                company = new Company({
+                    name: 'Company',
+                    email: 'company@testco.com',
+                    phone: '12345'
+                });
+                company.save((err, company) => {
+                    location = new Location({
+                        name: 'Head Office',
+                        phone: company.phone,
+                        company: company._id,
+                        address: {
+                            houseNumber: '1',
+                            street: 'Street',
+                            town: 'Town',
+                            postCode: 'PC1',
+                            country: 'Country'
+                        }
                     });
-                    company.save((err, company) => {
-                        location = new Location({
-                            name: 'Location',
+                    location.save((err, location) => {
+                        supplier = new Supplier({
+                            name: 'Supplier',
                             phone: '12345',
-                            company: {
-                                _id: company._id,
-                                name: company.name
-                            },
-                            email: 'mail@testco.com',
-                            address: {
-                                houseNumber: '1',
-                                street: 'Street',
-                                town: 'Town',
-                                postCode: 'PC1',
-                                country: 'Country'
-                            }
+                            email: 'test@supplier.com'
                         });
-                        location.save((err, location) => {
-                            input = {
-                                email: 'test@mail.com',
-                                password: 'Password',
-                                firstName: 'Name',
-                                lastName: 'Surname',
-                                companyId: company._id.toString(),
-                                locations: [
-                                    location._id.toString()
-                                ],
-                                role: 'Admin'
-                            };
-                            user = new User({
-                                email: input.email,
-                                password: input.password,
-                                firstName: input.firstName,
-                                lastName: input.lastName,
-                                company: {
-                                    _id: company._id,
-                                    name: company.name
-                                },
-                                locations: [
-                                    {
-                                        _id: location._id,
-                                        name: location.name
-                                    }
-                                ],
-                                role: input.role
+                        supplier.save((err, supplier) => {
+                            category = new Category({
+                                name: 'Category',
+                                company: company._id
                             });
-                            done();
+                            category.save((err, category) => {
+                                subcategory = new Subcategory({
+                                    name: 'Subcategory',
+                                    company: company._id,
+                                    category: category._id
+                                });
+                                subcategory.save((err, subcategory) => {
+                                    template = new Template({
+                                        name: 'Template',
+                                        location: location._id,
+                                        company: company._id,
+                                        supplier: supplier._id,
+                                        orderDays: [Date.now()]
+                                    });
+                                    product = new Product({
+                                        name: 'Product',
+                                        price: 10,
+                                        quantity: '1*10',
+                                        supplierReference: 'SUP-001',
+                                        supplier: supplier._id,
+                                        category: category._id,
+                                        subcategory: subcategory._id
+                                    });
+                                    product.save((err, template) => {
+                                        template.save((err, template) => {
+                                            order = new Order({
+                                                location: location._id,
+                                                date: Date.now(),
+                                                supplier: supplier._id,
+                                                productsOrdered: [{
+                                                    product: product._id,
+                                                    quantity: 1
+                                                }]
+                                            });
+                                            order.save((err, order) => {
+                                                user = new User({
+                                                    email: 'testuser@testco.com',
+                                                    password: 'HelloWorld',
+                                                    firstName: 'Test',
+                                                    lastName: 'User',
+                                                    company: company._id.toString(),
+                                                    locations: [location._id.toString()],
+                                                    role: 'Admin'
+                                                });
+                                                user.save((err, user) => {
+                                                    token = user.generateAuthToken();
+                                                    input = {
+                                                        email: 'test@mail.com',
+                                                        password: 'HelloWorld',
+                                                        firstName: 'Name',
+                                                        lastName: 'Surname',
+                                                        company: company._id.toString(),
+                                                        locations: [
+                                                            location._id.toString()
+                                                        ],
+                                                        role: 'Admin'
+                                                    };
+                                                    done();
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
                         });
-                    })
+                    });
                 });
             });
         });
@@ -94,7 +139,7 @@ describe('Users Model', () => {
 
         it(`shouldn't validate the input if one or more member(s) don't satisfy the validation criteria`, () => {
             input.email = 'mail';
-            input.password = '';
+            input.password = 'Password';
             input.firstName = 'Oi';
             input.lastName = 'Tu';
             input.companyId = 'Hello';
@@ -139,7 +184,7 @@ describe('Users Model', () => {
     describe('Update', () => {
         it(`should update the user if given the right information`, (done) => {
             User.updateOne({_id: user._id},
-                {name: 'UserTest'}, (err) => {
+                {firstName: 'Testi'}, (err) => {
                     expect(err).to.not.exist;
                     done();
                 });
@@ -178,16 +223,6 @@ describe('Users Model', () => {
         it('should generate an hash using 10 rounds', () => {
             const rounds = bcrypt.getRounds(user.password);
             expect(rounds).to.be.equal(10);
-        });
-
-        it('should generate a hash that can be validated against the original password', (done) => {
-            //Using the input password used when saving the user to compare hashes
-            bcrypt.compare('Password', user.password, (err, res) => {
-                expect(err).to.not.exist;
-                expect(res).to.exist;
-                expect(res).to.be.true;
-                done();
-            });
         });
     });
 

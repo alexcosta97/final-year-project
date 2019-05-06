@@ -17,6 +17,7 @@ const suppliers = require('./routes/suppliers');
 const templates = require('./routes/templates');
 const users = require('./routes/users');
 const auth = require('./routes/auth');
+const cors = require('cors');
 // const {authMiddleware} = require('./services/tokenAuth');
 
 //Initialize express app
@@ -35,11 +36,7 @@ if(!config.get('jwtPrivateKey')){
     process.exit(1);
 }
 
-app.use(function(req, res, next){
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-    next();
-})
+app.use(cors());
 
 //Configuring Mongoose
 mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});

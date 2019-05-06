@@ -36,7 +36,9 @@ if(!config.get('jwtPrivateKey')){
     process.exit(1);
 }
 
-app.use(cors());
+app.use(cors({
+    exposedHeaders: ['x-auth-token']
+}));
 
 //Configuring Mongoose
 mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});

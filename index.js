@@ -35,6 +35,12 @@ if(!config.get('jwtPrivateKey')){
     process.exit(1);
 }
 
+app.use(function(req, res, next){
+    res.header("Allow-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+    next();
+})
+
 //Configuring Mongoose
 mongoose.connect(config.get('mongoConnectionString'), {useNewUrlParser: true, useCreateIndex: true});
 //parse application/json and look for raw text  

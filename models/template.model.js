@@ -35,6 +35,7 @@ const Template = mongoose.model('Template', TemplateSchema);
 const validateTemplate = (template) => {
     //Creating the main input schema
     const mainInput = {
+        _id: Joi.objectId(),
         name: Joi.string().min(5).max(255).required(),
         location: Joi.objectId().required(),
         supplier: Joi.objectId().required(),

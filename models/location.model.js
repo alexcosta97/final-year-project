@@ -83,6 +83,7 @@ const Location = mongoose.model('Location', LocationSchema);
 const validateLocation = (location) => {
     //creating joi-specific validation schema
     const schema = {
+        _id: Joi.objectId(),
         name: Joi.string().min(3).max(50).required(),
         phone: Joi.string().min(5).max(50).required(),
         fax: Joi.string().min(5).max(50),

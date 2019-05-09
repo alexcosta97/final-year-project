@@ -25,6 +25,7 @@ const Category = mongoose.model('Category', CategorySchema);
 const validateCategory = (category) =>{
     //creating a joi-unique validation schema
     const schema = {
+        _id: Joi.objectId(),
         company: Joi.objectId().required(),
         name: Joi.string().min(5).max(50).required()
     };

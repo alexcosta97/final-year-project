@@ -30,6 +30,7 @@ const Company = mongoose.model('Company', CompanySchema);
 const validateCompany = (company) => {
     //creating a validation schema
     const schema = {
+        _id: Joi.objectId(),
         name: Joi.string().min(5).max(255).required(),
         email: Joi.string().min(10).max(255).required().email(),
         phone: Joi.string().min(5).max(50).required(),

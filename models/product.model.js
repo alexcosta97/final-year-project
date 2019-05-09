@@ -50,6 +50,7 @@ const Product = mongoose.model('Product', ProductSchema);
 const validateProduct = (product) => {
     //Creating joi-specific schema for client input validation
     const schema = {
+        _id: Joi.objectId(),
         name: Joi.string().min(3).max(255).required(),
         price: Joi.number().min(0).required(),
         quantity: Joi.string().min(1).max(50),

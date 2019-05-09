@@ -54,6 +54,7 @@ const validateOrder = (order) => {
 
     //creating a joi-specific validation schema for the data that we expect from the client
     const mainSchema = {
+        _id: Joi.objectId(),
         date: Joi.date().required(),
         location: Joi.objectId().required(),
         supplier: Joi.objectId().required(),

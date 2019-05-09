@@ -35,6 +35,7 @@ const Supplier = mongoose.model('Supplier', SupplierSchema);
 const validateSupplier = (supplier) => {
     //creating joi-specific schema for expected user input
     const schema = {
+        _id: Joi.objectId(),
         name: Joi.string().min(5).max(50).required(),
         phone: Joi.string().min(5).max(50).required(),
         email: Joi.string().min(10).max(255).required().email(),

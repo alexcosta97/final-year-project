@@ -102,6 +102,7 @@ const User = mongoose.model('User', UserSchema);
 const validateUser = (user) => {
 
     const mainInput = {
+        _id: Joi.objectId(),
         employeeID: Joi.string().min(3).max(50),
         email: Joi.string().min(10).max(255).required().email(),
         password: Joi.string().min(8).max(255).required(),

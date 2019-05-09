@@ -57,12 +57,16 @@ const update = async (req, res) => {
     if(req.body.company === req.user.company){
         let category;
         const {error} = validate(req.body);
-        if(error) return res.status(400).json({message: error.details[0].message});
+        if(error) {
+            console.log(error.details[0].message)
+            return res.status(400).json({message: error.details[0].message});
+        }
 
         let company;
         try{
             company = await Company.findById(req.body.company);
         }catch(err){
+            console.log(err.message);
             return res.status(400).json({message: 'Invalid Company'});
         }
 

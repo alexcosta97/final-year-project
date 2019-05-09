@@ -6,7 +6,7 @@ const Roles = require('../services/roles');
 const readAll = async (req, res) => {
     let users;
     try{
-        users = await User.find({}).select('-password').exec();
+        users = await User.find({company: req.user.company}).select('-password').exec();
     } catch(err){
         return res.status(409).json({message: 'Something went wrong'});
     }
